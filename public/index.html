@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+
+  <title>React App</title>
+</head>
+
+<body>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <script type="text/javascript">
+    function onVisaCheckoutReady() {
+      V.init({
+        apikey: "498WCF39JVQVH1UK4TGG21leLAj_MJQoapP5f12IanfEYaSno",
+        encryptionKey: "498WCF39JVQVH1UK4TGG21leLAj_MJQoapP5f12IanfEYaSno",
+        sourceId: "Merchant Defined Source ID",
+        settings: {
+          locale: "en_US",
+          countryCode: "US",
+          displayName: "Demo-store",
+          logoUrl: "www.Some_Image_URL.gif",
+          websiteUrl: "www....Corp.com",
+          customerSupportUrl: "www....Corp.support.com",
+          shipping: {
+            acceptedRegions: ["US", "CA"],
+            collectShipping: "true",
+          },
+          payment: {
+            cardBrands: ["VISA", "MASTERCARD"],
+            acceptCanadianVisaDebit: "true",
+            billingCountries: ["US", "CA"],
+          },
+          review: {
+            message: "Thank you for your purchase! Your order has been processed successfully.",
+            buttonAction: "Continue",
+          },
+          dataLevel: "SUMMARY",
+          acquirerBIN: "455555",
+          acquirerMerchantId: "12345678",
+          merchantName: "TestMerchant",
+        },
+        paymentRequest: {
+          merchantRequestId: "Merchant defined request ID",
+          currencyCode: "USD",
+          subtotal: "10.00",
+          shippingHandling: "2.00",
+          tax: "2.00",
+          discount: "1.00",
+          giftWrap: "2.00",
+          misc: "1.00",
+          total: "16.00",
+          description: "...corp Product",
+          orderId: "Merchant defined order ID",
+          promoCode: "Merchant defined promo code",
+          customData: {
+            nvPair: [
+              { name: "customName1", value: "customValue1" },
+              { name: "customName2", value: "customValue2" },
+            ],
+          },
+        },
+        acquirerBIN: "455555",
+        acquirerMerchantId: "12345678",
+        merchantName: "TestMerchant",
+      });
+
+      V.on("payment.success", function (payment) {
+        console.log("success ===>", payment);
+      });
+      V.on("payment.cancel", function (payment) {
+        console.log("Cancel ===>", payment);
+      });
+      V.on("payment.error", function (payment, error) {
+        console.log("Error Payment ===>", payment);
+        console.log("Error Info ===>", error);
+      });
+    }
+  </script>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+
+  <visa-checkout></visa-checkout>
+</body>
+
+</html>

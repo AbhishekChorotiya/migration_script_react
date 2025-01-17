@@ -1,0 +1,5 @@
+export const VIEWS = {
+  EMAIL: "EMAIL_INPUT_VIEW",
+  OTP: "OTP_INPUT_VIEW",
+  SELECT_CARD: "SELECT_CARD_VIEW",
+};
