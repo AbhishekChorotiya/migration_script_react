@@ -1,12 +1,24 @@
 import React from "react";
 import CloseIcon from "../icons/Close";
-import useVisaCheckout from "../../utils/hooks/useVisaCheckout";
 
 export const Header = ({ handleClose = () => {} }) => {
+  const headerStyles = {
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "10px 20px",
+    borderBottom: "1px solid black",
+    alignItems: "center",
+  };
+
   return (
-    <div className="w-full flex px-5 py-2.5 border-b border-black justify-between">
+    <div style={headerStyles}>
       <span>Logo</span>
-      <button type="button" onClick={handleClose}>
+      <button
+        type="button"
+        onClick={handleClose}
+        style={{ background: "none", border: "none", cursor: "pointer" }}
+      >
         <CloseIcon />
       </button>
     </div>

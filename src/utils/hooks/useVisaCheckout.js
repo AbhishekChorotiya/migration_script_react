@@ -1,16 +1,23 @@
 import { useContext } from "react";
 import { ViewContext } from "../context";
 import { VIEWS } from "../constants/enums";
-import { isVsbReady, Vsb } from "../helpers";
+import { checkoutParams, v2Configurations } from "../../migration";
 
 const useVisaCheckout = () => {
-  const { setView, setCards } = useContext(ViewContext);
+  const Vsb = window?.VSDK;
+  const isVsbReady = typeof Vsb != "undefined";
+  const { setView, setCards, setMaskedValidationChannel, selectedCard } =
+    useContext(ViewContext);
 
-  const getCards = async (email = "", otp = null) => {
+  const init = async () => {
     if (!isVsbReady) {
-      console.warn("VSB is not ready");
+      console.warn("VSDK not found");
       return;
     }
+    await Vsb.initialize(v2Configurations.initParams);
+  };
+
+  const getCards = async (email = "", otp = null) => {
     let userEmail = email || localStorage.getItem("consumerEmail") || null;
     if (!userEmail) {
       setView(VIEWS.EMAIL);
@@ -18,19 +25,27 @@ const useVisaCheckout = () => {
       return;
     }
     console.log("Fetching cards...", otp);
-    let consumerIdentity = {
+    const consumerIdentity = {
       identityProvider: "SRC",
       identityValue: userEmail,
       identityType: "EMAIL_ADDRESS",
     };
+
+    const payload = {
+      consumerIdentity,
+    };
+
+    if (otp) payload.validationData = otp;
+
     try {
-      const cards = await Vsb.getCards({ consumerIdentity });
+      const cards = await Vsb.getCards(payload);
       const { actionCode } = cards;
-      console.log("===> actionCode", actionCode);
+      console.log("===> actionCode", cards);
 
       switch (actionCode) {
         case "SUCCESS":
-          console.log("SUCCESS");
+          console.log("SUCCESS", cards);
+          setView(VIEWS.SELECT_CARD);
           setCards(cards);
           return;
         case "ERROR":
@@ -38,6 +53,8 @@ const useVisaCheckout = () => {
           break;
         case "PENDING_CONSUMER_IDV":
           console.log("taking OTP input");
+          localStorage.setItem("consumerEmail", userEmail);
+          setMaskedValidationChannel(cards?.maskedValidationChannel);
           setView(VIEWS.OTP);
           return;
         default:
@@ -49,15 +66,36 @@ const useVisaCheckout = () => {
     }
   };
 
-  const checkout = () => {
-    if (!isVsbReady) {
-      console.warn("VSB is not ready");
-      return;
-    }
-    console.log("Processing checkout...");
+  const checkout = async (iframeRef) => {
+    console.log("Processing checkout...", iframeRef);
+    const checkoutParameters = {
+      srcDigitalCardId: selectedCard?.srcDigitalCardId || "",
+      payloadTypeIndicatorCheckout: "FULL",
+      windowRef: iframeRef,
+      dpaTransactionOptions: {
+        authenticationPreferences: {
+          authenticationMethods: [
+            {
+              authenticationMethodType: "3DS",
+              authenticationSubject: "CARDHOLDER",
+              methodAttributes: {
+                challengeIndicator: "01",
+              },
+            },
+          ],
+          payloadRequested: "AUTHENTICATED",
+        },
+        acquirerBIN: checkoutParams?.acquirerBIN,
+        acquirerMerchantId: checkoutParams?.acquirerMerchantId,
+        merchantName: checkoutParams?.merchantName,
+      },
+    };
+    const checkoutResponse = await Vsb.checkout(checkoutParameters);
+    console.log("===> My Response", checkoutResponse);
   };
 
   return {
+    init,
     getCards,
     checkout,
   };

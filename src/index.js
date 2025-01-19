@@ -22,6 +22,7 @@ class CustomWebComponent extends HTMLElement {
 
   render() {
     const mountPoint = document.createElement("div");
+    mountPoint.setAttribute("id", "visa-checkout-mount-point");
     mountPoint.style.cssText =
       "display: flex; flex-direction: column; height: 100%; width: 100%;";
     const linkTag = document.createElement("link");

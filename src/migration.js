@@ -22,7 +22,8 @@ const initCheckoutButton = (cardBrands) => {
       }
       visaCheckoutElement = document.createElement("visa-checkout");
       visaCheckoutElement.setAttribute("id", "visaCheckout");
-      document.body.appendChild(visaCheckoutElement);
+      const iframeDiv = createOverlay();
+      iframeDiv.appendChild(visaCheckoutElement);
     });
   } else {
     console.warn("V1 button not found");
@@ -78,7 +79,24 @@ export const v2Configurations = {
   initParams: null,
 };
 
-export const checkoutParams = {};
+export const checkoutParams = {
+  merchantName: null,
+  acquirerBIN: null,
+  acquirerMerchantId: null,
+};
+
+const loadVisaV2SDK = (dpaId) => {
+  const sdkUrl = `https://sandbox.secure.checkout.visa.com/checkout-widget/resources/js/integration/v2/sdk.js?dpaId=${dpaId}&locale=en_US&cardBrands=visa,mastercard&dpaClientId=TestMerchant`;
+  const script = document.createElement("script");
+  script.src = sdkUrl;
+  script.onload = () => {
+    console.log("[Bridge] Visa v2 SDK loaded successfully.");
+  };
+  script.onerror = () => {
+    console.error("[Bridge] Failed to load Visa v2 SDK.");
+  };
+  document.body.appendChild(script);
+};
 
 const hasRequiredParams = (v1Config) => {
   const requiredParams = [
@@ -107,10 +125,10 @@ const v1CheckoutFuctions = {
     checkoutParams.acquirerMerchantId = v1Config.acquirerMerchantId;
     checkoutParams.merchantName = v1Config.merchantName;
     const cardBrands = initConfig?.settings?.payment?.cardBrands;
-
-    v2Configurations.initParams = buildV2InitializeConfig(v1Config);
-    initCheckoutButton(cardBrands);
     v2Configurations.apikey = v1Config.apikey;
+    v2Configurations.initParams = buildV2InitializeConfig(v1Config);
+    loadVisaV2SDK(v1Config.apikey);
+    initCheckoutButton(cardBrands);
   },
 
   additionalCheckoutParameters: (params) => {
@@ -136,6 +154,50 @@ const v1CheckoutFuctions = {
 };
 
 window.V = v1CheckoutFuctions;
+
+function createIframeDialog(overlayDiv) {
+  const iframeDiv = document.createElement("div");
+  const headerComponent = document.createElement("header-component");
+  headerComponent.id = "header-component";
+  iframeDiv.appendChild(headerComponent);
+  iframeDiv.style.width = "100%";
+  iframeDiv.style.maxWidth = "400px";
+  iframeDiv.style.height = "500px";
+  iframeDiv.style.border = "none";
+  iframeDiv.style.margin = "0";
+  iframeDiv.style.padding = "0";
+  iframeDiv.style.zIndex = "9999";
+  iframeDiv.style.backgroundColor = "white";
+  iframeDiv.id = "iframeDiv";
+  overlayDiv.appendChild(iframeDiv);
+  iframeDiv.addEventListener("click", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+  });
+  return iframeDiv;
+}
+
+export const createOverlay = () => {
+  const overlayDiv = document.createElement("div");
+  overlayDiv.id = "sdkOverlay";
+  overlayDiv.style.position = "fixed";
+  overlayDiv.style.display = "flex";
+  overlayDiv.style.top = "0";
+  overlayDiv.style.left = "0";
+  overlayDiv.style.width = "100vw";
+  overlayDiv.style.height = "100vh";
+  overlayDiv.style.backgroundColor = "rgba(0, 0, 0, 0.75)";
+  overlayDiv.style.justifyContent = "center";
+  overlayDiv.style.alignItems = "center";
+  overlayDiv.style.zIndex = "999";
+  document.body.appendChild(overlayDiv);
+  overlayDiv.addEventListener("click", () => {
+    document.body.removeChild(overlayDiv);
+    v1Callbacks.canceled();
+  });
+  const iframeDiv = createIframeDialog(overlayDiv);
+  return iframeDiv;
+};
 
 if (typeof window.onVisaCheckoutReady === "function") {
   console.log("onVisaCheckoutReady is called");

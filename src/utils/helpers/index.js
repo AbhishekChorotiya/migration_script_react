@@ -1,6 +1,3 @@
-export const Vsb = window?.VSDK;
-export const isVsbReady = typeof Vsb != "undefined";
-
 export const getCardNetwork = (panBin) => {
   const bin = panBin.toString();
   const cardNetworks = [
@@ -38,3 +35,5 @@ export const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
+
+
