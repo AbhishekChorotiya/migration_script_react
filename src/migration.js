@@ -1,6 +1,71 @@
-import { buildV2InitializeConfig, initCheckoutButton } from "./utils/helpers";
+const initCheckoutButton = (cardBrands) => {
+  let queryString = "";
+  if (cardBrands?.length) {
+    queryString = "&orderedCardBrands=" + cardBrands.join(",");
+  } else {
+    queryString += "&orderedCardBrands=ALL";
+  }
+  let imageUrl =
+    "https://sandbox-assets.secure.checkout.visa.com/wallet-services-web/xo/button.png?cardBrands=VISA%2CMASTERCARD%2CDISCOVER%2CAMEX&animation=true&legacy=false&svg=true";
 
-console.log("migration script loaded");
+  if (queryString) imageUrl += queryString;
+
+  let v1Button = document.getElementsByClassName("v-button")[0];
+  if (v1Button) {
+    v1Button.src = imageUrl;
+    v1Button.addEventListener("click", () => {
+      console.log("V1 button clicked");
+      let visaCheckoutElement = document.getElementById("visaCheckout");
+      if (visaCheckoutElement) {
+        console.log("Visa checkout element already exists");
+        return;
+      }
+      visaCheckoutElement = document.createElement("visa-checkout");
+      visaCheckoutElement.setAttribute("id", "visaCheckout");
+      document.body.appendChild(visaCheckoutElement);
+    });
+  } else {
+    console.warn("V1 button not found");
+  }
+};
+
+const buildV2InitializeConfig = (initDataV1) => {
+  console.log("V1", initDataV1);
+  const initDataV2 = {
+    dpaTransactionOptions: {},
+  };
+
+  if (initDataV1.settings?.locale) {
+    initDataV2.dpaTransactionOptions.dpaLocale = initDataV1.settings.locale;
+  }
+
+  if (
+    initDataV1.paymentRequest?.subtotal &&
+    initDataV1.paymentRequest.currencyCode
+  ) {
+    initDataV2.dpaTransactionOptions.transactionAmount = {
+      transactionAmount: `${initDataV1.paymentRequest.subtotal}`,
+      transactionCurrencyCode: initDataV1.paymentRequest.currencyCode || "USD",
+    };
+  }
+
+  if (initDataV1.settings?.billingCountries) {
+    initDataV2.dpaTransactionOptions.dpaAcceptedBillingCountries =
+      initDataV1.settings.billingCountries;
+  }
+
+  if (initDataV1.settings?.countryCode) {
+    initDataV2.dpaTransactionOptions.merchantCountryCode =
+      initDataV1.settings.countryCode;
+  }
+
+  if (initDataV1.paymentRequest?.orderId) {
+    initDataV2.dpaTransactionOptions.merchantOrderId =
+      initDataV1.paymentRequest.orderId;
+  }
+
+  return initDataV2;
+};
 
 let v1Callbacks = {
   success: null,
@@ -78,3 +143,5 @@ if (typeof window.onVisaCheckoutReady === "function") {
 } else {
   console.log("onVisaCheckoutReady is not defined");
 }
+
+console.log("migration script loaded");

@@ -1,24 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Header } from "./components/common/Header";
 import { ViewContext } from "./utils/context";
 import EmailInputView from "./components/Views/EmailInputView";
-import useVisaCheckout from "./utils/hooks/useVisaCheckout";
-import { v2Configurations } from "./migration";
 
 const App = () => {
-  const { init } = useVisaCheckout();
-
   const [view, setView] = useState("EMAIL_INPUT_VIEW");
+  const [cards, setCards] = useState({});
   const handleClose = () => {
     console.log("handleClose called");
   };
 
-  useEffect(() => {
-    init();
-  }, []);
-
   return (
-    <ViewContext.Provider value={{ view, setView }}>
+    <ViewContext.Provider value={{ view, setView, cards, setCards }}>
       <Header handleClose={handleClose} />
       <EmailInputView />
     </ViewContext.Provider>

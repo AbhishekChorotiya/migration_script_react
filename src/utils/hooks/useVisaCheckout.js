@@ -1,48 +1,65 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { ViewContext } from "../context";
-import { v2Configurations } from "../../migration";
 import { VIEWS } from "../constants/enums";
+import { isVsbReady, Vsb } from "../helpers";
 
-let Vsb = window?.VSDK;
-const isVsbReady = typeof Vsb == "undefined";
-const safeCall = (callback) => {
-  if (isVsbReady) {
-    return callback;
-  } else {
-    console.warn("Vsb is not ready");
-    return () => {};
-  }
-};
 const useVisaCheckout = () => {
-  const { view, setView } = useContext(ViewContext);
-  const init = async () => {
-    console.log("Initializing Visa Checkout...");
-    const v2Config = v2Configurations;
+  const { setView, setCards } = useContext(ViewContext);
+
+  const getCards = async (email = "", otp = null) => {
+    if (!isVsbReady) {
+      console.warn("VSB is not ready");
+      return;
+    }
+    let userEmail = email || localStorage.getItem("consumerEmail") || null;
+    if (!userEmail) {
+      setView(VIEWS.EMAIL);
+      console.log("taking user email input");
+      return;
+    }
+    console.log("Fetching cards...", otp);
+    let consumerIdentity = {
+      identityProvider: "SRC",
+      identityValue: userEmail,
+      identityType: "EMAIL_ADDRESS",
+    };
     try {
-      await Vsb.init(v2Config?.initParams);
+      const cards = await Vsb.getCards({ consumerIdentity });
+      const { actionCode } = cards;
+      console.log("===> actionCode", actionCode);
+
+      switch (actionCode) {
+        case "SUCCESS":
+          console.log("SUCCESS");
+          setCards(cards);
+          return;
+        case "ERROR":
+          console.log("ERROR");
+          break;
+        case "PENDING_CONSUMER_IDV":
+          console.log("taking OTP input");
+          setView(VIEWS.OTP);
+          return;
+        default:
+          console.log("No cards found >> ", cards.actionCode);
+          break;
+      }
     } catch (e) {
       console.error(e);
     }
   };
 
-  const getCards = (email = "", otp = null) => {
-    let userEmail = email || localStorage.getItem("consumerEmail") || null;
-    if (userEmail) {
-    } else {
-      setView(VIEWS.EMAIL);
-    }
-
-    console.log("Fetching cards...", otp);
-  };
-
   const checkout = () => {
+    if (!isVsbReady) {
+      console.warn("VSB is not ready");
+      return;
+    }
     console.log("Processing checkout...");
   };
 
   return {
-    init: safeCall(init),
-    getCards: safeCall(getCards),
-    checkout: safeCall(checkout),
+    getCards,
+    checkout,
   };
 };
 

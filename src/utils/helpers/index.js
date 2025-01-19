@@ -1,3 +1,6 @@
+export const Vsb = window?.VSDK;
+export const isVsbReady = typeof Vsb != "undefined";
+
 export const getCardNetwork = (panBin) => {
   const bin = panBin.toString();
   const cardNetworks = [
@@ -31,60 +34,7 @@ export const getCardNetwork = (panBin) => {
   return "Unknown";
 };
 
-export function buildV2InitializeConfig(initDataV1) {
-  console.log("V1", initDataV1);
-  const initDataV2 = {
-    dpaTransactionOptions: {},
-  };
-
-  if (initDataV1.settings?.locale) {
-    initDataV2.dpaTransactionOptions.dpaLocale = initDataV1.settings.locale;
-  }
-
-  if (
-    initDataV1.paymentRequest?.subtotal &&
-    initDataV1.paymentRequest.currencyCode
-  ) {
-    initDataV2.dpaTransactionOptions.transactionAmount = {
-      transactionAmount: `${initDataV1.paymentRequest.subtotal}`,
-      transactionCurrencyCode: initDataV1.paymentRequest.currencyCode || "USD",
-    };
-  }
-
-  if (initDataV1.settings?.billingCountries) {
-    initDataV2.dpaTransactionOptions.dpaAcceptedBillingCountries =
-      initDataV1.settings.billingCountries;
-  }
-
-  if (initDataV1.settings?.countryCode) {
-    initDataV2.dpaTransactionOptions.merchantCountryCode =
-      initDataV1.settings.countryCode;
-  }
-
-  if (initDataV1.paymentRequest?.orderId) {
-    initDataV2.dpaTransactionOptions.merchantOrderId =
-      initDataV1.paymentRequest.orderId;
-  }
-
-  return initDataV2;
-}
-
-export function initCheckoutButton(cardBrands) {
-  let queryString = "";
-  if (cardBrands?.length) {
-    queryString = "&orderedCardBrands=" + cardBrands.join(",");
-  } else {
-    queryString += "&orderedCardBrands=ALL";
-  }
-  let imageUrl =
-    "https://sandbox-assets.secure.checkout.visa.com/wallet-services-web/xo/button.png?cardBrands=VISA%2CMASTERCARD%2CDISCOVER%2CAMEX&animation=true&legacy=false&svg=true";
-
-  if (queryString) imageUrl += queryString;
-
-  let v1Button = document.getElementsByClassName("v-button")[0];
-  if (v1Button) {
-    v1Button.src = imageUrl;
-  } else {
-    console.warn("V1 button not found");
-  }
-}
+export const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
