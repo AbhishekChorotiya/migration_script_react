@@ -18,7 +18,7 @@ const CardListItem = ({ card }) => {
       className="flex flex-col hover:bg-gray-100"
     >
       <div className="w-full-100 px-4">
-        <div className="w-full flex gap-4 items-center py-4 border-b border-black">
+        <div className="w-full flex gap-4 items-center py-4 border-b border-[#d7d7de]">
           <div className="w-16 overflow-hidden rounded h-10">
             <img
               src={card?.digitalCardData?.artUri}

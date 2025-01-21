@@ -8,55 +8,24 @@ const EmailInputView = () => {
   const [email, setEmail] = useState(
     localStorage.getItem("consumerEmail") || ""
   );
+  const [submitting, setSubmitting] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(true);
   const { getCards } = useVisaCheckout();
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateEmail(email)) {
       setIsValidEmail(false);
       return;
     }
-    getCards(email);
+    setSubmitting(true);
+    await getCards(email);
     setIsValidEmail(true);
+    setSubmitting(false);
   };
-  const containerStyles = {
-    padding: "1.25rem",
-    display: "flex",
-    flexDirection: "column",
-  };
-  const headerStyles = {
-    width: "100%",
-    borderBottom: "1px solid black",
-    padding: "1rem 0",
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-  };
-  const titleStyles = {
-    fontSize: "2rem",
-    textAlign: "center",
-  };
-  const subtitleStyles = {
-    textAlign: "center",
-  };
-  const errorTextStyles = {
-    color: "#DC2626",
-    marginTop: "0.25rem",
-    fontSize: "0.875rem",
-  };
-  const infoTextStyles = {
-    margin: "0.75rem 0 0.25rem",
-    fontSize: "0.875rem",
-  };
-  const linkStyles = {
-    textDecoration: "underline",
-    color: "#1D4ED8",
-  };
-
   return (
-    <div style={containerStyles}>
-      <div style={headerStyles}>
-        <h1 style={titleStyles}>Easy and smart online checkout</h1>
-        <p style={subtitleStyles}>Pay with confidence with Click to Pay</p>
+    <div className="p-5 flex h-fit bg-red-200 flex-col">
+      <div className="w-full border-b border-black py-4 flex flex-col gap-2">
+        <h1 className="text-2xl text-center">Easy and smart online checkout</h1>
+        <p className="text-center">Pay with confidence with Click to Pay</p>
       </div>
       <Input
         maxLength={75}
@@ -65,15 +34,18 @@ const EmailInputView = () => {
         setValue={setEmail}
         placeholder="Email Address"
         submitFunction={handleSubmit}
+        disabled={submitting}
       />
-      {!isValidEmail && <p style={errorTextStyles}>Email is not valid</p>}
-      <p style={infoTextStyles}>
+      {!isValidEmail && (
+        <p className="text-red-600 mt-1 text-sm">Email is not valid</p>
+      )}
+      <p className="my-3 mb-1 text-sm">
         By continuing, you agree to Visa's{" "}
-        <a href="#" style={linkStyles}>
+        <a href="#" className="underline text-blue-700">
           Privacy Notice.
         </a>
       </p>
-      <Button onClick={handleSubmit} title="CONTINUE" />
+      <Button onClick={handleSubmit} title="CONTINUE" loading={submitting} />
     </div>
   );
 };

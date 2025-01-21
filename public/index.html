@@ -18,6 +18,23 @@
       margin: 0;
       padding: 0;
     }
+
+    #paze-button {
+      background-color: #2B63FF;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 1rem;
+      margin-top: 0;
+      height: 47px;
+      width: 213px;
+    }
   </style>
   <script type="text/javascript">
     function onVisaCheckoutReady() {
@@ -89,7 +106,11 @@
   </script>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <img alt="Visa Checkout" class="v-button" role="button" src="https://sandbox.secure.checkout.visa.com/wallet-services-web/xo/button.png?
-  cardBrands=VISA,MASTERCARD,DISCOVER,AMEX" style="cursor: pointer;" />
+  cardBrands=VISA,MASTERCARD,DISCOVER,AMEX" style="cursor: pointer; margin: 1rem;" />
+  <br>
+  <button id="paze-button">
+    <img src="https://www.paze.com/sites/default/files/2023-05/Paze_sm_w.png" style="width: 75px;"></img>
+  </button>
 </body>
 
 </html>

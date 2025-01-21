@@ -10,7 +10,7 @@ const SelectCardView = () => {
     <div className="flex flex-col">
       <div className="px-5 py-4">
         <h1>SELECT CARD</h1>
-        <p>Select from card(s) set up for Click to Pay</p>
+        <p className="text-sm">Select from card(s) set up for Click to Pay</p>
       </div>
       <ul>
         {maskedCards.map((card, i) => {

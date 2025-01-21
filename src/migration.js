@@ -68,7 +68,7 @@ const buildV2InitializeConfig = (initDataV1) => {
   return initDataV2;
 };
 
-let v1Callbacks = {
+export const v1Callbacks = {
   success: null,
   error: null,
   canceled: null,
@@ -87,15 +87,26 @@ export const checkoutParams = {
 
 const loadVisaV2SDK = (dpaId) => {
   const sdkUrl = `https://sandbox.secure.checkout.visa.com/checkout-widget/resources/js/integration/v2/sdk.js?dpaId=${dpaId}&locale=en_US&cardBrands=visa,mastercard&dpaClientId=TestMerchant`;
+  const pazeSdkUrl =
+    "https://sandbox.digitalwallet.earlywarning.com/web/resources/js/digitalwallet-sdk.js";
   const script = document.createElement("script");
+  const pazeScript = document.createElement("script");
   script.src = sdkUrl;
+  pazeScript.src = pazeSdkUrl;
   script.onload = () => {
     console.log("[Bridge] Visa v2 SDK loaded successfully.");
+  };
+  pazeScript.onload = () => {
+    console.log("Paze SDK loaded successfully.");
   };
   script.onerror = () => {
     console.error("[Bridge] Failed to load Visa v2 SDK.");
   };
+  pazeScript.onerror = () => {
+    console.error("Failed to load Paze SDK.");
+  };
   document.body.appendChild(script);
+  document.body.appendChild(pazeScript);
 };
 
 const hasRequiredParams = (v1Config) => {
@@ -157,9 +168,6 @@ window.V = v1CheckoutFuctions;
 
 function createIframeDialog(overlayDiv) {
   const iframeDiv = document.createElement("div");
-  const headerComponent = document.createElement("header-component");
-  headerComponent.id = "header-component";
-  iframeDiv.appendChild(headerComponent);
   iframeDiv.style.width = "100%";
   iframeDiv.style.maxWidth = "400px";
   iframeDiv.style.height = "500px";

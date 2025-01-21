@@ -1,24 +1,14 @@
 import React from "react";
 import CloseIcon from "../icons/Close";
+import C2pLogo from "../icons/C2pLogo";
 
 export const Header = ({ handleClose = () => {} }) => {
-  const headerStyles = {
-    width: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "10px 20px",
-    borderBottom: "1px solid black",
-    alignItems: "center",
-  };
-
   return (
-    <div style={headerStyles}>
-      <span>Logo</span>
-      <button
-        type="button"
-        onClick={handleClose}
-        style={{ background: "none", border: "none", cursor: "pointer" }}
-      >
+    <div className="w-full flex px-5 py-2.5 border-b border-black justify-between">
+      <span className="w-7 h-6 flex items-center">
+        <C2pLogo />
+      </span>
+      <button type="button" onClick={handleClose}>
         <CloseIcon />
       </button>
     </div>

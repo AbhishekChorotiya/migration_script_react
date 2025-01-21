@@ -7,6 +7,7 @@ const Input = ({
   maxLength,
   submitFunction = () => {},
   autoFocus = false,
+  disabled = false,
 }) => {
   const inputStyles = {
     width: "100%",
@@ -28,6 +29,7 @@ const Input = ({
         if (e.key === "Enter") submitFunction();
       }}
       style={inputStyles}
+      disabled={disabled}
     />
   );
 };

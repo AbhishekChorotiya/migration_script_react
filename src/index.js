@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./migration";
+import "./paze";
 class CustomWebComponent extends HTMLElement {
   constructor() {
     super();
@@ -31,8 +32,9 @@ class CustomWebComponent extends HTMLElement {
       "https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css";
     this.shadowRoot.appendChild(linkTag);
     this.shadowRoot.appendChild(mountPoint);
-
-    ReactDOM.createRoot(mountPoint).render(<App />);
+    linkTag.onload = () => {
+      ReactDOM.createRoot(mountPoint).render(<App />);
+    };
   }
 }
 

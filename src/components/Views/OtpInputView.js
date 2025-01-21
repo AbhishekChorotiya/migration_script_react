@@ -7,24 +7,27 @@ import useVisaCheckout from "../../utils/hooks/useVisaCheckout";
 const OtpInputView = () => {
   const { maskedValidationChannel } = useContext(ViewContext);
   const { getCards } = useVisaCheckout();
+  const [submitting, setSubmitting] = useState(false);
   const [otp, setOtp] = useState("");
   const [isValidOtp, setIsValidOtp] = useState(true);
   if (!maskedValidationChannel) {
     return <div>Something went wrong!</div>;
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!otp || otp.length !== 6) {
       setIsValidOtp(false);
       return;
     }
+    setSubmitting(true);
     setIsValidOtp(true);
-    getCards(null, otp);
+    await getCards(null, otp);
+    setSubmitting(false);
   };
 
   return (
     <div className="p-5 flex flex-col">
-      <h1 className="text-center">Welcome back</h1>
+      <h1 className="text-center text-2xl">Welcome back</h1>
       <div className="flex flex-col items-center border-b border-black py-4">
         <p>Enter the one-time code Mastercard texted to</p>
         {maskedValidationChannel.split(",").map((channel, i) => (
@@ -52,6 +55,7 @@ const OtpInputView = () => {
         maxLength={6}
         value={otp}
         submitFunction={handleSubmit}
+        disabled={submitting}
       />
       {!isValidOtp && (
         <p className="text-red-600 mt-1 text-sm">OTP is not valid</p>
@@ -65,7 +69,7 @@ const OtpInputView = () => {
           Resend code
         </button>
       </div>
-      <Button title="CONTINUE" onClick={handleSubmit} />
+      <Button loading={submitting} title="CONTINUE" onClick={handleSubmit} />
     </div>
   );
 };

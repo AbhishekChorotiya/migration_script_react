@@ -12,6 +12,7 @@ const CheckoutView = () => {
       <iframe
         id="checkout-iframe"
         title="Checkout"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         ref={iframeRef}
         src={null}
         width="100%"
