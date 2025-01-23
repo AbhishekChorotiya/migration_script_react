@@ -76,7 +76,7 @@ export function pazeCheckout(initParams, v1Config) {
         console.log("Checkout Response:", checkoutRes);
 
         const element = document.getElementById("paymentStatus");
-        if ((checkoutRes.result = "COMPLETE")) {
+        if (checkoutRes.result === "COMPLETE") {
           if (element) {
             element.textContent = "Payment Successful";
             element.style.color = "green";
