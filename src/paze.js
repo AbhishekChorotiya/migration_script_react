@@ -75,16 +75,28 @@ export function pazeCheckout(initParams, v1Config) {
         });
         console.log("Checkout Response:", checkoutRes);
 
-        const completeTransaction = await digitalWalletAdaptor.complete({
-          sessionId: TEST_SESSION_ID,
-          transactionType: "PURCHASE",
-          transactionValue: TRANSACTION_DETAILS,
-          transactionOptions: {
-            billingPreference: BILLING_PREFERENCE,
-            payloadTypeIndicator: "ID",
-          },
-        });
-        console.log("Complete Transaction Response:", completeTransaction);
+        const element = document.getElementById("paymentStatus");
+        if ((checkoutRes.result = "COMPLETE")) {
+          if (element) {
+            element.textContent = "Payment Successful";
+            element.style.color = "green";
+          }
+          const completeTransaction = await digitalWalletAdaptor.complete({
+            sessionId: TEST_SESSION_ID,
+            transactionType: "PURCHASE",
+            transactionValue: TRANSACTION_DETAILS,
+            transactionOptions: {
+              billingPreference: BILLING_PREFERENCE,
+              payloadTypeIndicator: "ID",
+            },
+          });
+          console.log("Complete Transaction Response:", completeTransaction);
+        } else {
+          if (element) {
+            element.textContent = "Payment Failed";
+            element.style.color = "red";
+          }
+        }
       } else {
         console.warn("Consumer not present. Cannot proceed with checkout.");
       }
