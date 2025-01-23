@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="Web site created using create-react-app" />
 
-  <title>React App</title>
+  <title>Visa unified CTP</title>
 </head>
 
 <body>
@@ -19,21 +19,8 @@
       padding: 0;
     }
 
-    #paze-button {
-      background-color: #2B63FF;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
+    #paze-button-root {
       margin: 1rem;
-      margin-top: 0;
-      height: 47px;
-      width: 213px;
     }
   </style>
   <script type="text/javascript">
@@ -92,6 +79,16 @@
         merchantName: "TestMerchant",
       });
 
+      V.initPaze({
+        id: "YK2L1TY5GL0Y1UYLYM9O13oRBRPaMPqYO20N34ByCkwn-c6Is",
+        name: "Hyperswitch",
+        profileId: "Getin",
+        transactionDetails: {
+          transactionCurrencyCode: "USD",
+          transactionAmount: "100.00",
+        }
+      })
+
       V.on("payment.success", function (payment) {
         console.log("success ===>", payment);
       });
@@ -108,9 +105,9 @@
   <img alt="Visa Checkout" class="v-button" role="button" src="https://sandbox.secure.checkout.visa.com/wallet-services-web/xo/button.png?
   cardBrands=VISA,MASTERCARD,DISCOVER,AMEX" style="cursor: pointer; margin: 1rem;" />
   <br>
-  <button id="paze-button">
-    <img src="https://www.paze.com/sites/default/files/2023-05/Paze_sm_w.png" style="width: 75px;"></img>
-  </button>
+  <div id="paze-button-root">
+
+  </div>
 </body>
 
 </html>

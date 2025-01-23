@@ -22,7 +22,7 @@ const EmailInputView = () => {
     setSubmitting(false);
   };
   return (
-    <div className="p-5 flex h-fit bg-red-200 flex-col">
+    <div className="p-5 flex h-full flex-col">
       <div className="w-full border-b border-black py-4 flex flex-col gap-2">
         <h1 className="text-2xl text-center">Easy and smart online checkout</h1>
         <p className="text-center">Pay with confidence with Click to Pay</p>

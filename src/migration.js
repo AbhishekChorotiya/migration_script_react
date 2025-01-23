@@ -1,3 +1,5 @@
+import { pazeCheckout } from "./paze";
+
 const initCheckoutButton = (cardBrands) => {
   let queryString = "";
   if (cardBrands?.length) {
@@ -85,28 +87,17 @@ export const checkoutParams = {
   acquirerMerchantId: null,
 };
 
-const loadVisaV2SDK = (dpaId) => {
-  const sdkUrl = `https://sandbox.secure.checkout.visa.com/checkout-widget/resources/js/integration/v2/sdk.js?dpaId=${dpaId}&locale=en_US&cardBrands=visa,mastercard&dpaClientId=TestMerchant`;
-  const pazeSdkUrl =
-    "https://sandbox.digitalwallet.earlywarning.com/web/resources/js/digitalwallet-sdk.js";
+const loadVisaV2SDK = (v1Config) => {
+  const sdkUrl = `https://sandbox.secure.checkout.visa.com/checkout-widget/resources/js/integration/v2/sdk.js?dpaId=${v1Config.apikey}&locale=en_US&cardBrands=visa,mastercard&dpaClientId=TestMerchant`;
   const script = document.createElement("script");
-  const pazeScript = document.createElement("script");
   script.src = sdkUrl;
-  pazeScript.src = pazeSdkUrl;
   script.onload = () => {
     console.log("[Bridge] Visa v2 SDK loaded successfully.");
-  };
-  pazeScript.onload = () => {
-    console.log("Paze SDK loaded successfully.");
   };
   script.onerror = () => {
     console.error("[Bridge] Failed to load Visa v2 SDK.");
   };
-  pazeScript.onerror = () => {
-    console.error("Failed to load Paze SDK.");
-  };
   document.body.appendChild(script);
-  document.body.appendChild(pazeScript);
 };
 
 const hasRequiredParams = (v1Config) => {
@@ -128,9 +119,11 @@ const hasRequiredParams = (v1Config) => {
   return hasRequiredData;
 };
 
+let v1Config = null;
+
 const v1CheckoutFuctions = {
   init: (initConfig) => {
-    const v1Config = initConfig;
+    v1Config = initConfig;
     if (!hasRequiredParams(v1Config)) return;
     checkoutParams.acquirerBIN = v1Config.acquirerBIN;
     checkoutParams.acquirerMerchantId = v1Config.acquirerMerchantId;
@@ -138,12 +131,17 @@ const v1CheckoutFuctions = {
     const cardBrands = initConfig?.settings?.payment?.cardBrands;
     v2Configurations.apikey = v1Config.apikey;
     v2Configurations.initParams = buildV2InitializeConfig(v1Config);
-    loadVisaV2SDK(v1Config.apikey);
+    loadVisaV2SDK(v1Config);
     initCheckoutButton(cardBrands);
   },
 
   additionalCheckoutParameters: (params) => {
     console.log(params);
+  },
+
+  initPaze: (params) => {
+    console.log("paze init params: ", params);
+    pazeCheckout(params, v1Config);
   },
 
   on: (eventName, callback) => {
