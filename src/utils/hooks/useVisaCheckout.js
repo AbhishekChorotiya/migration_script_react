@@ -1,7 +1,13 @@
 import { useContext } from "react";
 import { ViewContext } from "../context";
 import { VIEWS } from "../constants/enums";
-import { checkoutParams, v1Callbacks, v2Configurations } from "../../migration";
+import {
+  checkoutParams,
+  v1Callbacks,
+  v1Config,
+  v2Configurations,
+} from "../../migration";
+import { convertResponse } from "../api";
 
 const useVisaCheckout = () => {
   const Vsb = window?.VSDK;
@@ -20,7 +26,33 @@ const useVisaCheckout = () => {
       console.warn("VSDK not found");
       return;
     }
-    await Vsb.initialize(v2Configurations.initParams);
+    console.log(v2Configurations.initParams);
+    await Vsb.initialize({
+      dpaTransactionOptions: {
+        dpaLocale: "en_US",
+        // paymentOptions: [
+        //   {
+        //     dpaDynamicDataTtlMinutes: 15,
+        //     dynamicDataType: "CARD_APPLICATION_CRYPTOGRAM_LONG_FORM",
+        //     dpaPanRequested: true,
+        //   },
+        // ],
+        consumerNameRequested: true,
+        consumerEmailAddressRequested: true,
+        consumerPhoneNumberRequested: true,
+        transactionAmount: {
+          transactionAmount: "123.94",
+          transactionCurrencyCode: "USD",
+        },
+        payloadTypeIndicator: "FULL",
+        acquirerBIN: "455555",
+        acquirerMerchantId: "12345678",
+        merchantCategoryCode: "4829",
+        merchantCountryCode: "US",
+        dpaBillingPreference: "FULL",
+        dpaShippingPreference: "FULL",
+      },
+    });
   };
 
   const getCards = async (email = "", otp = null) => {
@@ -80,7 +112,7 @@ const useVisaCheckout = () => {
       const checkoutParameters = {
         srcDigitalCardId: selectedCard?.srcDigitalCardId || "",
         payloadTypeIndicatorCheckout: "FULL",
-        windowRef: iframeRef,
+        // windowRef: iframeRef,
         dpaTransactionOptions: {
           authenticationPreferences: {
             authenticationMethods: [
@@ -97,11 +129,21 @@ const useVisaCheckout = () => {
           acquirerBIN: checkoutParams?.acquirerBIN,
           acquirerMerchantId: checkoutParams?.acquirerMerchantId,
           merchantName: checkoutParams?.merchantName,
+          merchantOrderId: "fd65f14b-8155-47f0-bfa9-65ff9df0f760",
         },
       };
       const checkoutResponse = await Vsb.checkout(checkoutParameters);
       console.log("===> My Response", checkoutResponse);
-      v1Callbacks.success(checkoutResponse);
+      let { actionCode } = checkoutResponse;
+      if (actionCode === "SUCCESS") {
+        let res = await convertResponse({
+          ...checkoutResponse,
+          paymentRequest: v1Config,
+        });
+        if (!res.error) {
+          v1Callbacks.success(res);
+        }
+      }
       document.body.removeChild(document.getElementById("sdkOverlay"));
     } catch (e) {
       v1Callbacks.error(e);

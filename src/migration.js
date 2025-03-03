@@ -33,14 +33,27 @@ const initCheckoutButton = (cardBrands) => {
 };
 
 const buildV2InitializeConfig = (initDataV1) => {
-  console.log("V1", initDataV1);
   const initDataV2 = {
-    dpaTransactionOptions: {},
+    dpaTransactionOptions: {
+      payloadTypeIndicator: "FULL",
+      acquirerBIN: initDataV1?.acquirerBIN || "455555",
+      acquirerMerchantId: initDataV1?.acquirerMerchantId || "12345678",
+      merchantCategoryCode: initDataV1?.merchantCategoryCode || "4829",
+      // paymentOptions: [
+      //   {
+      //     dpaDynamicDataTtlMinutes: 15,
+      //     dynamicDataType: "CARD_APPLICATION_CRYPTOGRAM_LONG_FORM",
+      //     dpaPanRequested: true,
+      //   },
+      // ],
+      consumerNameRequested: true,
+      consumerEmailAddressRequested: true,
+      consumerPhoneNumberRequested: true,
+    },
   };
 
-  if (initDataV1.settings?.locale) {
-    initDataV2.dpaTransactionOptions.dpaLocale = initDataV1.settings.locale;
-  }
+  initDataV2.dpaTransactionOptions.dpaLocale =
+    initDataV1.settings.locale || "en_US";
 
   if (
     initDataV1.paymentRequest?.subtotal &&
@@ -62,10 +75,8 @@ const buildV2InitializeConfig = (initDataV1) => {
       initDataV1.settings.countryCode;
   }
 
-  if (initDataV1.paymentRequest?.orderId) {
-    initDataV2.dpaTransactionOptions.merchantOrderId =
-      initDataV1.paymentRequest.orderId;
-  }
+  initDataV2.dpaTransactionOptions.merchantOrderId =
+    initDataV1.paymentRequest.orderId || "fd65f14b-8155-47f0-bfa9-65ff9df0f760";
 
   return initDataV2;
 };
@@ -87,12 +98,110 @@ export const checkoutParams = {
   acquirerMerchantId: null,
 };
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const checkForPartnerScripts = async () => {
+  const maxAttempts = 8;
+  let attempts = 0;
+  let visaFound = false;
+  let mastercardFound = false;
+
+  while (attempts < maxAttempts && (!visaFound || !mastercardFound)) {
+    const scripts = Array.from(document.getElementsByTagName("script"));
+    for (const script of scripts) {
+      const id = script.id.toLowerCase();
+      const src = script.src.toLowerCase();
+
+      if (
+        !visaFound &&
+        (id.includes("visasdk") ||
+          src.includes("/resources/js/src-i-adapter/visasdk.js"))
+      ) {
+        visaFound = true;
+      }
+      if (
+        !mastercardFound &&
+        (id.includes("mastercardsdk") ||
+          src.includes("mastercard.com/sdk/srcsdk.mastercard.js"))
+      ) {
+        mastercardFound = true;
+      }
+      if (visaFound && mastercardFound) break;
+    }
+
+    if (visaFound && mastercardFound) break;
+
+    console.log("Visa or Mastercard SDKs not found yet.");
+    attempts++;
+    await delay(1000);
+  }
+
+  if (!visaFound || !mastercardFound) {
+    console.log("Timeout reached, no Visa or Mastercard SDKs found.");
+    return;
+  }
+
+  console.log("Both Visa and Mastercard SDKs found.");
+
+  const Vsb = window?.VSDK;
+  if (!Vsb) {
+    console.error("VSDK is not available on the window.");
+    return;
+  }
+
+  const maxCardAttempts = 6;
+  let cardAttempts = 0;
+  let cards;
+
+  while (cardAttempts < maxCardAttempts) {
+    await Vsb.initialize({
+      dpaTransactionOptions: {
+        dpaLocale: "en_US",
+        consumerNameRequested: true,
+        consumerEmailAddressRequested: true,
+        consumerPhoneNumberRequested: true,
+        transactionAmount: {
+          transactionAmount: "123.94",
+          transactionCurrencyCode: "USD",
+        },
+        payloadTypeIndicator: "FULL",
+        acquirerBIN: "455555",
+        acquirerMerchantId: "12345678",
+        merchantCategoryCode: "4829",
+        merchantCountryCode: "US",
+        dpaBillingPreference: "FULL",
+        dpaShippingPreference: "FULL",
+      },
+    });
+    cards = await Vsb.getCards({
+      consumerIdentity: {
+        identityProvider: "SRC",
+        identityValue: "abhishek.c@juspay.in",
+        identityType: "EMAIL_ADDRESS",
+      },
+    });
+
+    if (cards?.actionCode) break;
+
+    cardAttempts++;
+    console.log("RETRYING ---> ", cardAttempts, cards);
+    await delay(2000);
+  }
+
+  if (!cards?.actionCode) {
+    console.log("Maximum retries attempted for getCards.");
+  } else {
+    console.log("<====SCRIPT IS WORKING FINE====>", cards);
+  }
+};
+
 const loadVisaV2SDK = (v1Config) => {
-  const sdkUrl = `https://sandbox.secure.checkout.visa.com/checkout-widget/resources/js/integration/v2/sdk.js?dpaId=${v1Config.apikey}&locale=en_US&cardBrands=visa,mastercard&dpaClientId=TestMerchant`;
+  const sdkUrl = `https://sandbox.secure.checkout.visa.com/checkout-widget/resources/js/integration/v2/sdk.js?dpaId=498WCF39JVQVH1UK4TGG21leLAj_MJQoapP5f12IanfEYaSno&locale=en_US&cardBrands=visa,mastercard&dpaClientId=TestMerchant`;
   const script = document.createElement("script");
   script.src = sdkUrl;
   script.onload = () => {
     console.log("[Bridge] Visa v2 SDK loaded successfully.");
+    checkForPartnerScripts();
   };
   script.onerror = () => {
     console.error("[Bridge] Failed to load Visa v2 SDK.");
@@ -119,7 +228,7 @@ const hasRequiredParams = (v1Config) => {
   return hasRequiredData;
 };
 
-let v1Config = null;
+export var v1Config = null;
 
 const v1CheckoutFuctions = {
   init: (initConfig) => {

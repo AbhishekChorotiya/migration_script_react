@@ -7,7 +7,7 @@ const SelectCardView = () => {
   const maskedCards = cards.profiles[0].maskedCards;
   console.log(maskedCards);
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col overflow-y-scroll">
       <div className="px-5 py-4">
         <h1>SELECT CARD</h1>
         <p className="text-sm">Select from card(s) set up for Click to Pay</p>

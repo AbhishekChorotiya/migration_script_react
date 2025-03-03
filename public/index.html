@@ -50,9 +50,6 @@
             buttonAction: "Continue",
           },
           dataLevel: "SUMMARY",
-          acquirerBIN: "455555",
-          acquirerMerchantId: "12345678",
-          merchantName: "TestMerchant",
         },
         paymentRequest: {
           merchantRequestId: "Merchant defined request ID",
@@ -78,6 +75,16 @@
         acquirerMerchantId: "12345678",
         merchantName: "TestMerchant",
       });
+
+      V.initPaze({
+        id: "YK2L1TY5GL0Y1UYLYM9O13oRBRPaMPqYO20N34ByCkwn-c6Is",
+        name: "Hyperswitch",
+        profileId: "Getin",
+        transactionDetails: {
+          transactionCurrencyCode: "USD",
+          transactionAmount: "100.00",
+        }
+      })
 
       V.on("payment.success", function (payment) {
         console.log("success ===>", payment);
