@@ -29,6 +29,7 @@ class CustomWebComponent extends HTMLElement {
     linkTag.rel = "stylesheet";
     linkTag.href =
       "https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css";
+
     this.shadowRoot.appendChild(linkTag);
     this.shadowRoot.appendChild(mountPoint);
     linkTag.onload = () => {

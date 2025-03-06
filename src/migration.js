@@ -1,5 +1,5 @@
 import { pazeCheckout } from "./paze";
-
+export let newUI = false;
 const initCheckoutButton = (cardBrands) => {
   let queryString = "";
   if (cardBrands?.length) {
@@ -93,6 +93,23 @@ const loadVisaV2SDK = (v1Config) => {
   script.src = sdkUrl;
   script.onload = () => {
     console.log("[Bridge] Visa v2 SDK loaded successfully.");
+    const preconnect1 = document.createElement("link");
+    preconnect1.rel = "preconnect";
+    preconnect1.href = "https://fonts.googleapis.com";
+
+    const preconnect2 = document.createElement("link");
+    preconnect2.rel = "preconnect";
+    preconnect2.href = "https://fonts.gstatic.com";
+    preconnect2.crossOrigin = "anonymous";
+
+    const fontLink = document.createElement("link");
+    fontLink.rel = "stylesheet";
+    fontLink.href =
+      "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap";
+
+    document.head.appendChild(preconnect1);
+    document.head.appendChild(preconnect2);
+    document.head.appendChild(fontLink);
   };
   script.onerror = () => {
     console.error("[Bridge] Failed to load Visa v2 SDK.");
@@ -124,6 +141,9 @@ let v1Config = null;
 const v1CheckoutFuctions = {
   init: (initConfig) => {
     v1Config = initConfig;
+    if (initConfig?.newUI) {
+      newUI = true;
+    }
     if (!hasRequiredParams(v1Config)) return;
     checkoutParams.acquirerBIN = v1Config.acquirerBIN;
     checkoutParams.acquirerMerchantId = v1Config.acquirerMerchantId;

@@ -49,6 +49,7 @@ const Checkout = () => {
         flexDirection: "column",
         height: "100%",
         width: "100%",
+        fontFamily: "Montserrat",
       }}
     >
       {view !== VIEWS.CHECKOUT && <Header handleClose={handleClose} />}
