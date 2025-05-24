@@ -1,32 +1,34 @@
 import { useState } from "react";
-import { ViewContext } from "./utils/context";
 import { VIEWS } from "./utils/constants/enums";
 import Checkout from "./components/Checkout";
+import { Provider, useAtom } from "jotai";
+import {
+  viewAtom,
+  cardsAtom,
+  selectedCardAtom,
+  consumerEmailAtom,
+  maskedValidationChannelAtom,
+} from "./utils/atoms";
 
 const App = () => {
-  const [view, setView] = useState(VIEWS.LOADING);
-  const [cards, setCards] = useState({});
-  const [selectedCard, setSelectedCard] = useState({});
-  const [consumerEmail, setConsumerEmail] = useState(
-    localStorage.getItem("consumerEmail") || ""
+  const [view, setView] = useAtom(viewAtom);
+  const [cards, setCards] = useAtom(cardsAtom);
+  const [selectedCard, setSelectedCard] = useAtom(selectedCardAtom);
+  const [consumerEmail, setConsumerEmail] = useAtom(consumerEmailAtom);
+  const [maskedValidationChannel, setMaskedValidationChannel] = useAtom(
+    maskedValidationChannelAtom
   );
-  const [maskedValidationChannel, setMaskedValidationChannel] = useState(null);
+
+  // Initialize consumerEmail from localStorage if it exists
+  useState(() => {
+    const storedEmail = localStorage.getItem("consumerEmail");
+    if (storedEmail) {
+      setConsumerEmail(storedEmail);
+    }
+  });
 
   return (
-    <ViewContext.Provider
-      value={{
-        view,
-        consumerEmail,
-        setConsumerEmail,
-        setView,
-        cards,
-        setCards,
-        maskedValidationChannel,
-        setMaskedValidationChannel,
-        selectedCard,
-        setSelectedCard,
-      }}
-    >
+    <Provider>
       <div
         style={{
           display: "flex",
@@ -37,7 +39,7 @@ const App = () => {
       >
         <Checkout />
       </div>
-    </ViewContext.Provider>
+    </Provider>
   );
 };
 

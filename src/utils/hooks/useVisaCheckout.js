@@ -1,19 +1,23 @@
-import { useContext } from "react";
-import { ViewContext } from "../context";
+import { useSetAtom, useAtomValue } from "jotai";
 import { VIEWS } from "../constants/enums";
+import { useAtom } from "jotai";
+import {
+  viewAtom,
+  cardsAtom,
+  selectedCardAtom,
+  consumerEmailAtom,
+  maskedValidationChannelAtom,
+} from "../atoms";
 import { checkoutParams, v1Callbacks, v2Configurations } from "../../migration";
 
 const useVisaCheckout = () => {
   const Vsb = window?.VSDK;
   const isVsbReady = typeof Vsb != "undefined";
-  const {
-    setView,
-    setCards,
-    setMaskedValidationChannel,
-    selectedCard,
-    consumerEmail,
-    setConsumerEmail,
-  } = useContext(ViewContext);
+  const setView = useSetAtom(viewAtom);
+  const setCards = useSetAtom(cardsAtom);
+  const setMaskedValidationChannel = useSetAtom(maskedValidationChannelAtom);
+  const selectedCard = useAtomValue(selectedCardAtom);
+  const [consumerEmail, setConsumerEmail] = useAtom(consumerEmailAtom);
 
   const init = async () => {
     if (!isVsbReady) {
@@ -25,17 +29,15 @@ const useVisaCheckout = () => {
 
   const getCards = async (email = "", otp = null) => {
     let userEmail = email || consumerEmail;
-    if (!userEmail) {
-      setView(VIEWS.EMAIL);
-      console.log("taking user email input");
-      return;
-    }
     console.log("Fetching cards...", otp);
-    const consumerIdentity = {
-      identityProvider: "SRC",
-      identityValue: userEmail,
-      identityType: "EMAIL_ADDRESS",
-    };
+
+    const consumerIdentity = userEmail
+      ? {
+          identityProvider: "SRC",
+          identityValue: userEmail,
+          identityType: "EMAIL_ADDRESS",
+        }
+      : {};
 
     const payload = {
       consumerIdentity,
@@ -55,8 +57,14 @@ const useVisaCheckout = () => {
           setCards(cards);
           return;
         case "ERROR":
-          console.log("ERROR");
-          close();
+          switch (cards?.error?.reason) {
+            case "INVALID_PARAMETER":
+              setView(VIEWS.EMAIL);
+              break;
+            default:
+              console.log("ERROR");
+              close();
+          }
           break;
         case "PENDING_CONSUMER_IDV":
           console.log("taking OTP input");
@@ -66,11 +74,12 @@ const useVisaCheckout = () => {
           setView(VIEWS.OTP);
           return;
         default:
-          console.log("No cards found >> ", cards.actionCode);
-          break;
+          console.log("ERROR");
+          close();
       }
     } catch (e) {
       console.error(e);
+      close();
     }
   };
 

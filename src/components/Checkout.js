@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { Header } from "./common/Header";
 import EmailInputView from "./Views/EmailInputView";
 import OtpInputView from "./Views/OtpInputView";
@@ -6,12 +6,13 @@ import SelectCardView from "./Views/SelectCardView";
 import CheckoutView from "./Views/CheckoutView";
 import LoadingView from "./Views/LoadingView";
 import useVisaCheckout from "../utils/hooks/useVisaCheckout";
-import { ViewContext } from "../utils/context";
 import { VIEWS } from "../utils/constants/enums";
+import { useAtom } from "jotai";
+import { viewAtom } from "../utils/atoms";
 
 const Checkout = () => {
   const { init, getCards, close } = useVisaCheckout();
-  const { view } = useContext(ViewContext);
+  const [view] = useAtom(viewAtom);
   const handleClose = () => {
     close();
   };

@@ -1,7 +1,8 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import Button from "../common/Button";
-import { ViewContext } from "../../utils/context";
 import Input from "../common/Input";
+import { useAtom } from "jotai";
+import { maskedValidationChannelAtom } from "../../utils/atoms";
 import useVisaCheckout from "../../utils/hooks/useVisaCheckout";
 import C2pLogo from "../icons/C2pLogo";
 import VisaLogo from "../icons/VisaLogo";
@@ -10,7 +11,7 @@ import OtpInput from "../common/OtpInput";
 import { newUI } from "../../migration";
 
 const OtpInputView = () => {
-  const { maskedValidationChannel } = useContext(ViewContext);
+  const [maskedValidationChannel] = useAtom(maskedValidationChannelAtom);
   const { getCards } = useVisaCheckout();
   const [submitting, setSubmitting] = useState(false);
   const [otp, setOtp] = useState("");

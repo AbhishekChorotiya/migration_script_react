@@ -1,31 +1,51 @@
 import { pazeCheckout } from "./paze";
+
 export let newUI = false;
+
+// Constants
+const VISA_CHECKOUT_BUTTON_BASE_URL =
+  "https://sandbox-assets.secure.checkout.visa.com/wallet-services-web/xo/button.png?cardBrands=VISA%2CMASTERCARD%2CDISCOVER%2CAMEX&animation=true&legacy=false&svg=true";
+const VISA_V2_SDK_BASE_URL =
+  "https://sandbox.secure.checkout.visa.com/checkout-widget/resources/js/integration/v2/sdk.js";
+const VISA_CHECKOUT_ELEMENT_ID = "visaCheckout";
+const CTP_BUTTON_ID = "ctp-button";
+const V1_BUTTON_CLASS = "v-button";
+const SDK_OVERLAY_ID = "sdkOverlay";
+const IFRAME_DIV_ID = "iframeDiv";
+
 const initCheckoutButton = (cardBrands) => {
-  let queryString = "";
-  if (cardBrands?.length) {
-    queryString = "&orderedCardBrands=" + cardBrands.join(",");
-  } else {
-    queryString += "&orderedCardBrands=ALL";
+  let queryString = cardBrands?.length
+    ? `&orderedCardBrands=${cardBrands.join(",")}`
+    : "&orderedCardBrands=ALL";
+
+  let imageUrl = `${VISA_CHECKOUT_BUTTON_BASE_URL}${queryString}`;
+
+  function clickHandler() {
+    let visaCheckoutElement = document.getElementById(VISA_CHECKOUT_ELEMENT_ID);
+    if (visaCheckoutElement) {
+      console.log("Visa checkout element already exists");
+      return;
+    }
+    visaCheckoutElement = document.createElement("visa-checkout");
+    visaCheckoutElement.setAttribute("id", VISA_CHECKOUT_ELEMENT_ID);
+    const iframeDiv = createOverlay();
+    iframeDiv.appendChild(visaCheckoutElement);
   }
-  let imageUrl =
-    "https://sandbox-assets.secure.checkout.visa.com/wallet-services-web/xo/button.png?cardBrands=VISA%2CMASTERCARD%2CDISCOVER%2CAMEX&animation=true&legacy=false&svg=true";
 
-  if (queryString) imageUrl += queryString;
+  document.addEventListener("click", function (event) {
+    if (event.target && event.target.id === CTP_BUTTON_ID) {
+      console.log("v-button clicked");
+      clickHandler();
+    }
+  });
 
-  let v1Button = document.getElementsByClassName("v-button")[0];
+  let v1Button = document.getElementsByClassName(V1_BUTTON_CLASS)[0];
+
   if (v1Button) {
     v1Button.src = imageUrl;
     v1Button.addEventListener("click", () => {
       console.log("V1 button clicked");
-      let visaCheckoutElement = document.getElementById("visaCheckout");
-      if (visaCheckoutElement) {
-        console.log("Visa checkout element already exists");
-        return;
-      }
-      visaCheckoutElement = document.createElement("visa-checkout");
-      visaCheckoutElement.setAttribute("id", "visaCheckout");
-      const iframeDiv = createOverlay();
-      iframeDiv.appendChild(visaCheckoutElement);
+      clickHandler();
     });
   } else {
     console.warn("V1 button not found");
@@ -33,14 +53,20 @@ const initCheckoutButton = (cardBrands) => {
 };
 
 const buildV2InitializeConfig = (initDataV1) => {
-  console.log("V1", initDataV1);
   const initDataV2 = {
-    dpaTransactionOptions: {},
+    dpaTransactionOptions: {
+      dpaLocale: initDataV1.settings?.locale || "en_US",
+      paymentOptions: [
+        {
+          dpaDynamicDataTtlMinutes: 15,
+          dynamicDataType: "CARD_APPLICATION_CRYPTOGRAM_LONG_FORM",
+        },
+      ],
+      merchantCountryCode: initDataV1.settings?.countryCode || "US",
+      merchantOrderId:
+        initDataV1.paymentRequest?.orderId || "Merchant defined order ID",
+    },
   };
-
-  if (initDataV1.settings?.locale) {
-    initDataV2.dpaTransactionOptions.dpaLocale = initDataV1.settings.locale;
-  }
 
   if (
     initDataV1.paymentRequest?.subtotal &&
@@ -57,16 +83,7 @@ const buildV2InitializeConfig = (initDataV1) => {
       initDataV1.settings.billingCountries;
   }
 
-  if (initDataV1.settings?.countryCode) {
-    initDataV2.dpaTransactionOptions.merchantCountryCode =
-      initDataV1.settings.countryCode;
-  }
-
-  if (initDataV1.paymentRequest?.orderId) {
-    initDataV2.dpaTransactionOptions.merchantOrderId =
-      initDataV1.paymentRequest.orderId;
-  }
-
+  console.log("initDataV2", initDataV2);
   return initDataV2;
 };
 
@@ -87,33 +104,56 @@ export const checkoutParams = {
   acquirerMerchantId: null,
 };
 
-const loadVisaV2SDK = (v1Config) => {
-  const sdkUrl = `https://sandbox.secure.checkout.visa.com/checkout-widget/resources/js/integration/v2/sdk.js?dpaId=${v1Config.apikey}&locale=en_US&cardBrands=visa,mastercard&dpaClientId=TestMerchant`;
+const createScriptElement = (src, onload, onerror) => {
   const script = document.createElement("script");
-  script.src = sdkUrl;
-  script.onload = () => {
-    console.log("[Bridge] Visa v2 SDK loaded successfully.");
-    const preconnect1 = document.createElement("link");
-    preconnect1.rel = "preconnect";
-    preconnect1.href = "https://fonts.googleapis.com";
+  script.src = src;
+  script.onload = onload;
+  script.onerror = onerror;
+  return script;
+};
 
-    const preconnect2 = document.createElement("link");
-    preconnect2.rel = "preconnect";
-    preconnect2.href = "https://fonts.gstatic.com";
-    preconnect2.crossOrigin = "anonymous";
+const createLinkElement = (rel, href, crossOrigin = null) => {
+  const link = document.createElement("link");
+  link.rel = rel;
+  link.href = href;
+  if (crossOrigin) {
+    link.crossOrigin = crossOrigin;
+  }
+  return link;
+};
 
-    const fontLink = document.createElement("link");
-    fontLink.rel = "stylesheet";
-    fontLink.href =
-      "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap";
+const loadGoogleFonts = () => {
+  const preconnect1 = createLinkElement(
+    "preconnect",
+    "https://fonts.googleapis.com"
+  );
+  const preconnect2 = createLinkElement(
+    "preconnect",
+    "https://fonts.gstatic.com",
+    "anonymous"
+  );
+  const fontLink = createLinkElement(
+    "stylesheet",
+    "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+  );
 
-    document.head.appendChild(preconnect1);
-    document.head.appendChild(preconnect2);
-    document.head.appendChild(fontLink);
-  };
-  script.onerror = () => {
-    console.error("[Bridge] Failed to load Visa v2 SDK.");
-  };
+  document.head.appendChild(preconnect1);
+  document.head.appendChild(preconnect2);
+  document.head.appendChild(fontLink);
+};
+
+const loadVisaV2SDK = (v1Config) => {
+  const sdkUrl = `${VISA_V2_SDK_BASE_URL}?dpaId=${v1Config.apikey}&locale=en_US&cardBrands=visa,mastercard&dpaClientId=TestMerchant`;
+  const script = createScriptElement(
+    sdkUrl,
+    () => {
+      console.log("[Bridge] Visa v2 SDK loaded successfully.");
+      loadGoogleFonts();
+    },
+    () => {
+      console.error("[Bridge] Failed to load Visa v2 SDK.");
+    }
+  );
   document.body.appendChild(script);
 };
 
@@ -125,18 +165,19 @@ const hasRequiredParams = (v1Config) => {
     "merchantName",
   ];
 
-  let hasRequiredData = true;
-  for (let param of requiredParams) {
-    if (!v1Config?.[param]) {
-      console.error("Missing required init parameter:", param);
-      hasRequiredData = false;
-    }
+  const missingParams = requiredParams.filter((param) => !v1Config?.[param]);
+
+  if (missingParams.length > 0) {
+    missingParams.forEach((param) =>
+      console.error("Missing required init parameter:", param)
+    );
+    return false;
   }
 
-  return hasRequiredData;
+  return true;
 };
 
-let v1Config = null;
+export let v1Config = null;
 
 const v1CheckoutFuctions = {
   init: (initConfig) => {
@@ -184,17 +225,40 @@ const v1CheckoutFuctions = {
 
 window.V = v1CheckoutFuctions;
 
+const IFRAME_DIALOG_STYLES = {
+  width: "100%",
+  maxWidth: "400px",
+  height: "500px",
+  border: "none",
+  margin: "0",
+  padding: "0",
+  zIndex: "9999",
+  backgroundColor: "white",
+};
+
+const OVERLAY_STYLES = {
+  position: "fixed",
+  display: "flex",
+  top: "0",
+  left: "0",
+  width: "100vw",
+  height: "100vh",
+  backgroundColor: "rgba(0, 0, 0, 0.75)",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: "999",
+};
+
+function applyStyles(element, styles) {
+  for (const key in styles) {
+    element.style[key] = styles[key];
+  }
+}
+
 function createIframeDialog(overlayDiv) {
   const iframeDiv = document.createElement("div");
-  iframeDiv.style.width = "100%";
-  iframeDiv.style.maxWidth = "400px";
-  iframeDiv.style.height = "500px";
-  iframeDiv.style.border = "none";
-  iframeDiv.style.margin = "0";
-  iframeDiv.style.padding = "0";
-  iframeDiv.style.zIndex = "9999";
-  iframeDiv.style.backgroundColor = "white";
-  iframeDiv.id = "iframeDiv";
+  applyStyles(iframeDiv, IFRAME_DIALOG_STYLES);
+  iframeDiv.id = IFRAME_DIV_ID;
   overlayDiv.appendChild(iframeDiv);
   iframeDiv.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -205,17 +269,8 @@ function createIframeDialog(overlayDiv) {
 
 export const createOverlay = () => {
   const overlayDiv = document.createElement("div");
-  overlayDiv.id = "sdkOverlay";
-  overlayDiv.style.position = "fixed";
-  overlayDiv.style.display = "flex";
-  overlayDiv.style.top = "0";
-  overlayDiv.style.left = "0";
-  overlayDiv.style.width = "100vw";
-  overlayDiv.style.height = "100vh";
-  overlayDiv.style.backgroundColor = "rgba(0, 0, 0, 0.75)";
-  overlayDiv.style.justifyContent = "center";
-  overlayDiv.style.alignItems = "center";
-  overlayDiv.style.zIndex = "999";
+  overlayDiv.id = SDK_OVERLAY_ID;
+  applyStyles(overlayDiv, OVERLAY_STYLES);
   document.body.appendChild(overlayDiv);
   overlayDiv.addEventListener("click", () => {
     document.body.removeChild(overlayDiv);

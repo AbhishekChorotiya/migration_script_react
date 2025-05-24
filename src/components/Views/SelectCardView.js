@@ -1,7 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 import CardListItem from "../CardListItem";
-import { ViewContext } from "../../utils/context";
 import LockIcon from "../icons/LockIcon";
+import { useAtom } from "jotai";
+import { cardsAtom, viewAtom, selectedCardAtom } from "../../utils/atoms";
 import C2pLogo from "../icons/C2pLogo";
 import VisaLogo from "../icons/VisaLogo";
 import MasterCardLogo from "../icons/MasterCardLogo";
@@ -9,9 +10,10 @@ import { VIEWS } from "../../utils/constants/enums";
 import { newUI } from "../../migration";
 
 const SelectCardView = () => {
-  const { cards } = useContext(ViewContext);
+  const [cards] = useAtom(cardsAtom);
   const maskedCards = cards.profiles[0].maskedCards;
-  const { setView, selectedCard } = useContext(ViewContext);
+  const [selectedCard, setSelectedCard] = useAtom(selectedCardAtom);
+  const [, setView] = useAtom(viewAtom);
   const UiType = newUI ? "NEW" : "OLD";
   console.log(maskedCards);
   if (UiType === "OLD") {

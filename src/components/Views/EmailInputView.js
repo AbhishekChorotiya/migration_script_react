@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../common/Button";
 import Input from "../common/Input";
 import useVisaCheckout from "../../utils/hooks/useVisaCheckout";
@@ -6,16 +6,17 @@ import { validateEmail } from "../../utils/helpers";
 import FloatingLabelInput from "../common/FloatingLabelInput";
 import LockIcon from "../icons/LockIcon";
 import { newUI } from "../../migration";
+import LoadingView from "./LoadingView"; // Import LoadingView
 
 const EmailInputView = () => {
-  const [email, setEmail] = useState(
-    localStorage.getItem("consumerEmail") || ""
-  );
+  const [email, setEmail] = useState("");
   const [collapsed, setCollapsed] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // New state for loading
   const UiType = newUI ? "NEW" : "OLD";
   const { getCards } = useVisaCheckout();
+
   const handleSubmit = async () => {
     if (!validateEmail(email)) {
       setIsValidEmail(false);
@@ -26,6 +27,22 @@ const EmailInputView = () => {
     setIsValidEmail(true);
     setSubmitting(false);
   };
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("consumerEmail");
+    if (savedEmail && validateEmail(savedEmail)) {
+      setEmail(savedEmail);
+      setIsLoading(true); // Set loading to true while fetching cards
+      getCards(savedEmail);
+    } else {
+      setIsLoading(false); // No saved email, show input
+    }
+  }, []); // Run only once on mount
+
+  if (isLoading) {
+    return <LoadingView />; // Show loading view if isLoading is true
+  }
+
   if (UiType === "OLD") {
     return (
       <div className="p-5 flex h-full flex-col">

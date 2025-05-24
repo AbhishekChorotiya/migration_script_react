@@ -1,13 +1,15 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { getCardNetwork } from "../utils/helpers";
-import { ViewContext } from "../utils/context";
 import { VIEWS } from "../utils/constants/enums";
+import { useAtom } from "jotai";
+import { selectedCardAtom, viewAtom } from "../utils/atoms";
 import VisaLogo from "./icons/VisaLogo";
 import { newUI } from "../migration";
 import MasterCardLogo from "./icons/MasterCardLogo";
 
 const CardListItem = ({ card, border }) => {
-  const { setSelectedCard, setView, selectedCard } = useContext(ViewContext);
+  const [selectedCard, setSelectedCard] = useAtom(selectedCardAtom);
+  const [, setView] = useAtom(viewAtom);
   const cardNetworkName = getCardNetwork(card?.panBin);
   const UiType = newUI ? "NEW" : "OLD";
   const handleClick = () => {
