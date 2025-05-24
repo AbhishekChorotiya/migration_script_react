@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { getCardNetwork } from "../utils/helpers";
 import { VIEWS } from "../utils/constants/enums";
 import { useAtom } from "jotai";
@@ -12,15 +12,21 @@ const CardListItem = ({ card, border }) => {
   const [, setView] = useAtom(viewAtom);
   const cardNetworkName = getCardNetwork(card?.panBin);
   const UiType = newUI ? "NEW" : "OLD";
-  const handleClick = () => {
+  const handleOldUIClick = () => {
     setSelectedCard(card);
     setView(VIEWS.CHECKOUT);
-    console.log("Card clicked", card);
+    console.log("Card clicked (OLD UI)", card);
   };
+
+  const handleNewUIClick = () => {
+    setSelectedCard(card);
+    console.log("Card clicked (NEW UI)", card);
+  };
+
   if (UiType === "OLD") {
     return (
       <li
-        onClick={handleClick}
+        onClick={handleOldUIClick}
         role="button"
         className="flex flex-col hover:bg-gray-100"
       >
@@ -42,7 +48,7 @@ const CardListItem = ({ card, border }) => {
     );
   } else {
     return (
-      <div onClick={() => setSelectedCard(card)}>
+      <div onClick={handleNewUIClick}>
         <div
           className={`flex gap-2 cursor-pointer ${
             border && "border-b border-black"

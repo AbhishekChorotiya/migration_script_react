@@ -16,7 +16,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:migration": "webpack --config webpack.config.js"
   },
   "eslintConfig": {
     "extends": [
@@ -37,6 +38,12 @@
     ]
   },
   "devDependencies": {
-    "web-vitals": "^4.2.4"
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "babel-loader": "^10.0.0",
+    "web-vitals": "^4.2.4",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
   }
 }

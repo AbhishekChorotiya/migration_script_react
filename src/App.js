@@ -1,31 +1,19 @@
-import { useState } from "react";
-import { VIEWS } from "./utils/constants/enums";
+import React, { useEffect } from "react";
 import Checkout from "./components/Checkout";
-import { Provider, useAtom } from "jotai";
-import {
-  viewAtom,
-  cardsAtom,
-  selectedCardAtom,
-  consumerEmailAtom,
-  maskedValidationChannelAtom,
-} from "./utils/atoms";
+import { Provider, useSetAtom } from "jotai";
+import { consumerEmailAtom } from "./utils/atoms";
 
 const App = () => {
-  const [view, setView] = useAtom(viewAtom);
-  const [cards, setCards] = useAtom(cardsAtom);
-  const [selectedCard, setSelectedCard] = useAtom(selectedCardAtom);
-  const [consumerEmail, setConsumerEmail] = useAtom(consumerEmailAtom);
-  const [maskedValidationChannel, setMaskedValidationChannel] = useAtom(
-    maskedValidationChannelAtom
-  );
+  const setConsumerEmail = useSetAtom(consumerEmailAtom);
 
   // Initialize consumerEmail from localStorage if it exists
-  useState(() => {
+  // Using useEffect for side effects like localStorage access
+  useEffect(() => {
     const storedEmail = localStorage.getItem("consumerEmail");
     if (storedEmail) {
       setConsumerEmail(storedEmail);
     }
-  });
+  }, [setConsumerEmail]); // Dependency array includes setConsumerEmail
 
   return (
     <Provider>

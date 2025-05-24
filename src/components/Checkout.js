@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Header } from "./common/Header";
 import EmailInputView from "./Views/EmailInputView";
 import OtpInputView from "./Views/OtpInputView";
@@ -13,9 +13,9 @@ import { viewAtom } from "../utils/atoms";
 const Checkout = () => {
   const { init, getCards, close } = useVisaCheckout();
   const [view] = useAtom(viewAtom);
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     close();
-  };
+  }, [close]);
 
   const renderView = () => {
     switch (view) {

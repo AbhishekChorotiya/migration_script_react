@@ -9,10 +9,11 @@ import {
   maskedValidationChannelAtom,
 } from "../atoms";
 import { checkoutParams, v1Callbacks, v2Configurations } from "../../migration";
+import React from "react";
 
 const useVisaCheckout = () => {
-  const Vsb = window?.VSDK;
-  const isVsbReady = typeof Vsb != "undefined";
+  const VSDK = window?.VSDK;
+  const isVSDKReady = typeof VSDK !== "undefined";
   const setView = useSetAtom(viewAtom);
   const setCards = useSetAtom(cardsAtom);
   const setMaskedValidationChannel = useSetAtom(maskedValidationChannelAtom);
@@ -20,15 +21,21 @@ const useVisaCheckout = () => {
   const [consumerEmail, setConsumerEmail] = useAtom(consumerEmailAtom);
 
   const init = async () => {
-    if (!isVsbReady) {
-      console.warn("VSDK not found");
+    if (!isVSDKReady) {
+      console.warn("Visa SDK (VSDK) not found or not ready.");
       return;
     }
-    await Vsb.initialize(v2Configurations.initParams);
+    await VSDK.initialize(v2Configurations.initParams);
   };
 
   const getCards = async (email = "", otp = null) => {
     let userEmail = email || consumerEmail;
+    userEmail = userEmail.replace(/^"|"$/g, "");
+    if (!userEmail) {
+      console.warn("Email is required to fetch cards.");
+      setView(VIEWS.EMAIL);
+      return;
+    }
     console.log("Fetching cards...", otp);
 
     const consumerIdentity = userEmail
@@ -46,7 +53,7 @@ const useVisaCheckout = () => {
     if (otp) payload.validationData = otp;
 
     try {
-      const cards = await Vsb.getCards(payload);
+      const cards = await VSDK.getCards(payload);
       const { actionCode } = cards;
       console.log("===> actionCode", cards);
 
@@ -108,7 +115,7 @@ const useVisaCheckout = () => {
           merchantName: checkoutParams?.merchantName,
         },
       };
-      const checkoutResponse = await Vsb.checkout(checkoutParameters);
+      const checkoutResponse = await VSDK.checkout(checkoutParameters);
       console.log("===> My Response", checkoutResponse);
       v1Callbacks.success(checkoutResponse);
       document.body.removeChild(document.getElementById("sdkOverlay"));

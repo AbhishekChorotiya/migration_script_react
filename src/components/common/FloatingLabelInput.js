@@ -5,7 +5,6 @@ const FloatingLabelInput = ({
   type = "text",
   value,
   onChange,
-  submitFunction = () => {},
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);

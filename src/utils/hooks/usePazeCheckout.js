@@ -1,6 +1,14 @@
+import React from "react";
+
 const usePazeCheckout = () => {
-  const digitalWalletAdaptor = window?.DIGITAL_WALLET_SDK;
+  const digitalWalletSDK = window?.DIGITAL_WALLET_SDK;
+  const isSDKReady = typeof digitalWalletSDK !== "undefined";
+
   const init = () => {
+    if (!isSDKReady) {
+      console.warn("Digital Wallet SDK not found or not ready.");
+      return;
+    }
     console.log("paze init");
   };
   const canCheckout = () => {

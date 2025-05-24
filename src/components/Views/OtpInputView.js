@@ -2,18 +2,19 @@ import React, { useState } from "react";
 import Button from "../common/Button";
 import Input from "../common/Input";
 import { useAtom } from "jotai";
-import { maskedValidationChannelAtom } from "../../utils/atoms";
+import { maskedValidationChannelAtom, viewAtom } from "../../utils/atoms";
 import useVisaCheckout from "../../utils/hooks/useVisaCheckout";
 import C2pLogo from "../icons/C2pLogo";
 import VisaLogo from "../icons/VisaLogo";
 import MasterCardLogo from "../icons/MasterCardLogo";
 import OtpInput from "../common/OtpInput";
 import { newUI } from "../../migration";
+import { VIEWS } from "../../utils/constants/enums";
 
 const OtpInputView = () => {
   const [maskedValidationChannel] = useAtom(maskedValidationChannelAtom);
+  const [, setView] = useAtom(viewAtom);
   const { getCards } = useVisaCheckout();
-  const [submitting, setSubmitting] = useState(false);
   const [otp, setOtp] = useState("");
   const [isValidOtp, setIsValidOtp] = useState(true);
   if (!maskedValidationChannel) {
@@ -26,10 +27,16 @@ const OtpInputView = () => {
       setIsValidOtp(false);
       return;
     }
-    setSubmitting(true);
     setIsValidOtp(true);
+    setView(VIEWS.LOADING); // Set view to loading
     await getCards(null, otp);
-    setSubmitting(false);
+    // The view will be updated by getCards or a parent component after loading
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSubmit();
+    }
   };
 
   if (UiType === "OLD") {
@@ -59,11 +66,11 @@ const OtpInputView = () => {
           type="number"
           autoFocus
           placeholder="One-time code"
-          setValue={(e) => setOtp(e.replace(/\D/g, ""))}
+          setValue={(value) => setOtp(value.replace(/\D/g, ""))}
           maxLength={6}
           value={otp}
           submitFunction={handleSubmit}
-          disabled={submitting}
+          disabled={false}
         />
         {!isValidOtp && (
           <p className="text-red-600 mt-1 text-sm">OTP is not valid</p>
@@ -77,7 +84,7 @@ const OtpInputView = () => {
             Resend code
           </button>
         </div>
-        <Button loading={submitting} title="CONTINUE" onClick={handleSubmit} />
+        <Button loading={false} title="CONTINUE" onClick={handleSubmit} />
       </div>
     );
   } else {
@@ -104,6 +111,7 @@ const OtpInputView = () => {
             numInputs={6}
             separator={<span className="w-4" />}
             inputStyle={"w-10 h-10 border-2 rounded font-semibold"}
+            onKeyDown={handleKeyDown}
           />
         </div>
         {!isValidOtp && (
@@ -120,7 +128,7 @@ const OtpInputView = () => {
         </div>
         <button
           onClick={handleSubmit}
-          disabled={submitting}
+          disabled={false}
           style={{ backgroundColor: "#005C78" }}
           className="w-full disabled:bg-gray-300 rounded mt-5 flex items-center justify-center gap-2 h-12 text-white"
         >
