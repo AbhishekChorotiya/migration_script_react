@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="text/javascript">
+        function onVisaCheckoutReady() {
+            V.init({
+                apikey: "498WCF39JVQVH1UK4TGG21leLAj_MJQoapP5f12IanfEYaSno",
+                newUI: true,
+                encryptionKey: "498WCF39JVQVH1UK4TGG21leLAj_MJQoapP5f12IanfEYaSno",
+                sourceId: "Merchant Defined Source ID",
+                settings: {
+                    locale: "en_US",
+                    countryCode: "US",
+                    displayName: "Demo-store",
+                    logoUrl: "www.Some_Image_URL.gif",
+                    websiteUrl: "www....Corp.com",
+                    customerSupportUrl: "www....Corp.support.com",
+                    shipping: {
+                        acceptedRegions: ["US", "CA"],
+                        collectShipping: "true",
+                    },
+                    payment: {
+                        cardBrands: ["VISA", "MASTERCARD"],
+                        acceptCanadianVisaDebit: "true",
+                        billingCountries: ["US", "CA"],
+                    },
+                    review: {
+                        message: "Thank you for your purchase! Your order has been processed successfully.",
+                        buttonAction: "Continue",
+                    },
+                    dataLevel: "SUMMARY",
+                    acquirerBIN: "455555",
+                    acquirerMerchantId: "12345678",
+                    merchantName: "TestMerchant",
+                },
+                paymentRequest: {
+                    merchantRequestId: "Merchant defined request ID",
+                    currencyCode: "USD",
+                    subtotal: "10.00",
+                    shippingHandling: "2.00",
+                    tax: "2.00",
+                    discount: "1.00",
+                    giftWrap: "2.00",
+                    misc: "1.00",
+                    total: "16.00",
+                    description: "...corp Product",
+                    orderId: "Merchant defined order ID",
+                    promoCode: "Merchant defined promo code",
+                    customData: {
+                        nvPair: [
+                            { name: "customName1", value: "customValue1" },
+                            { name: "customName2", value: "customValue2" },
+                        ],
+                    },
+                },
+                acquirerBIN: "455555",
+                acquirerMerchantId: "12345678",
+                merchantName: "TestMerchant",
+            });
+
+            V.on("payment.success", function (payment) {
+                console.log("success ===>", payment);
+                window.location.href = 'paymentStatus.html?status=success';
+            });
+            V.on("payment.cancel", function (payment) {
+                console.log("Cancel ===>", payment);
+                window.location.href = 'paymentStatus.html?status=failure';
+            });
+            V.on("payment.error", function (payment, error) {
+                console.log("Error Payment ===>", payment);
+                console.log("Error Info ===>", error);
+                window.location.href = 'paymentStatus.html?status=failure';
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="back-arrow">&larr;</div>
+            <div class="logo-container">
+                DEMO STORE
+            </div>
+        </header>
+        <main>
+            <section class="payment-methods">
+                <h1>Select your preferred payment method</h1>
+                <div class="payment-option selected">
+                    <div class="payment-option-row">
+                        <div class="payment-option-main">
+                            <input type="radio" id="click-to-pay" name="payment" checked>
+                            <label for="click-to-pay">Click to Pay</label>
+                        </div>
+                        <img src="https://www.connectivepayments.com/wp-content/uploads/2020/09/Click-to-Pay-knop.png"
+                            alt="Click to Pay Icon" class="payment-icon" style="max-width: 36px;">
+                    </div>
+                    <div class="card-details">
+                        <img alt="Visa Checkout" class="v-button" role="button" src="https://sandbox.secure.checkout.visa.com/wallet-services-web/xo/button.png?
+                        cardBrands=VISA,MASTERCARD,DISCOVER,AMEX" style="cursor: pointer" />
+                        <a href="#">Find Out More</a>
+                    </div>
+                </div>
+                <div class="payment-option">
+                    <div class="payment-option-row">
+                        <div class="payment-option-main">
+                            <input type="radio" id="apple-pay" name="payment">
+                            <label for="apple-pay">Apple Pay</label>
+                        </div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Apple_Pay_logo.svg/600px-Apple_Pay_logo.svg.png"
+                            alt="Apple Pay Icon" class="payment-icon">
+                    </div>
+                </div>
+                <div class="payment-option">
+                    <div class="payment-option-row">
+                        <div class="payment-option-main">
+                            <input type="radio" id="credit-card" name="payment">
+                            <label for="credit-card">International credit or debit card</label>
+                        </div>
+                        <img src="https://w7.pngwing.com/pngs/584/302/png-transparent-computer-icons-credit-card-pict-kohut-angle-text-payment.png"
+                            alt="Credit Card Icon" class="payment-icon">
+                    </div>
+                </div>
+                <div class="payment-option">
+                    <div class="payment-option-row">
+                        <div class="payment-option-main">
+                            <input type="radio" id="paypal" name="payment">
+                            <label for="paypal">PayPal</label>
+                        </div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/600px-PayPal.svg.png"
+                            alt="PayPal Icon" class="payment-icon">
+                    </div>
+                </div>
+                <div class="payment-option">
+                    <div class="payment-option-row">
+                        <div class="payment-option-main">
+                            <input type="radio" id="google-pay" name="payment">
+                            <label for="google-pay">Google Pay</label>
+                        </div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/600px-Google_Pay_Logo.svg.png"
+                            alt="Google Pay Icon" class="payment-icon">
+                    </div>
+                </div>
+            </section>
+            <aside class="trip-details">
+                <h2>Trip details</h2>
+                <div class="detail-item">
+                    <span>One way</span>
+                </div>
+                <div class="detail-item">
+                    <span>Total trip price</span>
+                    <span>2970.0 AED</span>
+                </div>
+                <div class="detail-item grand-total">
+                    <span>Grand total</span>
+                    <span>2970.0 AED</span>
+                </div>
+                <div class="secure-payment">
+                    <img src="https://icon2.cleanpng.com/20190119/kpw/kisspng-computer-icons-scalable-vector-graphics-portable-n-lock-svg-png-icon-free-download-356244-online-5c4314c8cc50b2.3615350415479001048369.jpg"
+                        alt="Lock Icon" class="lock-icon">
+                    <span>Secure payment</span>
+                </div>
+                <div class="security-logos">
+                    <img src="https://t4.ftcdn.net/jpg/04/06/75/39/360_F_406753914_SFSBhjhp6kbHblNiUFZ1MXHcuEKe7e7P.jpg"
+                        alt="Visa Secure" style="max-width: 160px;">
+
+                </div>
+                <!-- custom button-->
+                <div style="width: 100%; height: 70px; margin-top: 20px;">
+                    <button id="ctp-button">Click to pay</button>
+                </div>
+            </aside>
+        </main>
+        <footer>
+            &copy; Demo Store. All rights reserved.
+        </footer>
+
+
+        <!-- <script type="text/javascript"
+            src="https://sandbox-assets.secure.checkout.visa.com/checkout-widget/resources/js/integration/v1/sdk.js"></script> -->
+
+        <script type="text/javascript" src="../dist/migrationScript.js"></script>`
+
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Status</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .status-container {
+            text-align: center;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .status-text {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .success-icon {
+            color: #28a745;
+            /* Green for success */
+        }
+
+        .failure-icon {
+            color: #dc3545;
+            /* Red for failure */
+        }
+
+        .pending-icon {
+            color: #ffc107;
+            /* Yellow for pending */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="status-container">
+        <div id="statusIcon" class="status-icon"></div>
+        <div id="statusText" class="status-text"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+
+            if (status === 'success') {
+                statusIcon.innerHTML = '&#10004;'; // Checkmark
+                statusIcon.classList.add('success-icon');
+                statusText.textContent = 'Payment Successful!';
+            } else if (status === 'failure') {
+                statusIcon.innerHTML = '&#10006;'; // Cross mark
+                statusIcon.classList.add('failure-icon');
+                statusText.textContent = 'Payment Failed!';
+            } else {
+                statusIcon.innerHTML = '&#9203;'; // Hourglass
+                statusIcon.classList.add('pending-icon');
+                statusText.textContent = 'Payment Pending or Unknown Status.';
+            }
+        });
+    </script>
+</body>
+
+</html>

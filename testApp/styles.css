@@ -1,0 +1,238 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #e9e7f0; /* Light lavender/gray like in the image */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 900px;
+    max-width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.back-arrow {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 30px; /* Default height */
+    max-width: 120px; /* Max width for Qatar logo */
+    margin-left: 15px;
+    object-fit: contain; /* Ensure logo aspect ratio is maintained */
+}
+
+.logo-container img:last-child { /* Oneworld logo */
+    height: 25px; /* Slightly smaller */
+    max-width: 80px;
+}
+
+main {
+    display: flex;
+    padding-top: 20px;
+}
+
+.payment-methods {
+    flex: 2;
+    padding-right: 20px;
+}
+
+.payment-methods h1 {
+    font-size: 24px;
+    font-weight: normal;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.payment-option {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    /* display: flex; */ /* Remove flex from here to allow block layout for card-details */
+    /* justify-content: space-between; */
+    /* align-items: center; */
+    cursor: pointer;
+    transition: border-color 0.3s;
+    position: relative; /* For positioning icons if needed */
+}
+
+.payment-option .payment-option-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.payment-option:hover {
+    border-color: #007bff;
+}
+
+.payment-option.selected {
+    border-color: #0056b3; /* Keep a distinct border for selected */
+    background-color: #fff; /* Selected background is white in image */
+}
+
+.payment-option-main {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Allow label to take available space */
+}
+
+.payment-option input[type="radio"] {
+    margin-right: 10px;
+    accent-color: #0056b3;
+    width: 18px; /* Slightly larger radio */
+    height: 18px;
+}
+
+.payment-option label {
+    font-size: 16px;
+    color: #333;
+}
+
+.payment-icon {
+    height: 25px;
+    max-width: 50px; /* Max width for wider logos like PayPal */
+    margin-left: 10px; /* Space between label and icon */
+    object-fit: contain;
+}
+
+.card-details {
+    margin-top: 15px; /* Space above card details */
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    /* width: 100%; */ /* Let it be natural width or adjust as needed */
+    padding-left: 28px; /* Indent to align with text, after radio */
+}
+
+/* Hide card-details by default */
+.payment-option:not(.selected) .card-details {
+    display: none;
+}
+
+.card-details img {
+    height: 25px;
+    margin-right: 10px;
+}
+
+/* Specific styling for the Visa Checkout button image */
+.payment-option.selected .card-details .v-button {
+    height: auto; /* Let the image determine its height based on width */
+    width: auto; /* Or set a specific width if needed, e.g., 200px */
+    max-width: 160px; /* As per original image example */
+    margin-right: 20px; /* Reset margin from inline style if needed */
+}
+
+.card-details a {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.card-details a:hover {
+    text-decoration: underline;
+}
+
+.trip-details {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.trip-details h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.detail-item.grand-total {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.secure-payment {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    font-size: 14px;
+    color: #333;
+    justify-content: center;
+}
+
+.lock-icon {
+    height: 18px; /* Slightly larger lock icon */
+    margin-right: 8px;
+    object-fit: contain;
+}
+
+.security-logos {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.security-brand-logos {
+    display: flex;
+    justify-content: flex-start; /* Align to the start as in image */
+    align-items: center;
+    gap: 10px; /* Space between logos */
+}
+
+.security-brand-logos img {
+    height: 25px; /* Adjusted height for security logos */
+    max-width: 60px; /* Max width to prevent oversized logos */
+    object-fit: contain;
+    /* margin: 0 5px; */ /* Replaced by gap */
+}
+
+footer {
+    text-align: center;
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    font-size: 12px;
+    color: #777;
+}
