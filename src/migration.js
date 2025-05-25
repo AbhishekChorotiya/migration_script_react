@@ -2,7 +2,6 @@ import { pazeCheckout } from "./paze";
 
 export let newUI = false;
 
-// Constants
 const VISA_CHECKOUT_BUTTON_BASE_URL =
   "https://sandbox-assets.secure.checkout.visa.com/wallet-services-web/xo/button.png?cardBrands=VISA%2CMASTERCARD%2CDISCOVER%2CAMEX&animation=true&legacy=false&svg=true";
 const VISA_V2_SDK_BASE_URL =
@@ -33,23 +32,50 @@ const initCheckoutButton = (cardBrands) => {
   }
 
   document.addEventListener("click", function (event) {
-    if (event.target && event.target.id === CTP_BUTTON_ID) {
-      console.log("v-button clicked");
-      clickHandler();
+    if (event.target) {
+      if (event.target.id === CTP_BUTTON_ID) {
+        console.log("CTP button clicked");
+        clickHandler();
+      } else if (event.target.classList.contains(V1_BUTTON_CLASS)) {
+        console.log("V1 button clicked via event delegation");
+        clickHandler();
+      }
     }
   });
 
-  let v1Button = document.getElementsByClassName(V1_BUTTON_CLASS)[0];
+  // Function to update the v1Button's src
+  const updateV1ButtonSrc = () => {
+    const v1Button = document.querySelector(`.${V1_BUTTON_CLASS}`);
+    if (v1Button && v1Button.src !== imageUrl) {
+      v1Button.src = imageUrl;
+      console.log("V1 button src updated:", imageUrl);
+    }
+  };
 
-  if (v1Button) {
-    v1Button.src = imageUrl;
-    v1Button.addEventListener("click", () => {
-      console.log("V1 button clicked");
-      clickHandler();
-    });
-  } else {
-    console.warn("V1 button not found");
-  }
+  // Initial check in case the button is already in the DOM
+  updateV1ButtonSrc();
+
+  // Observe for changes in the DOM to update the src if the button is added later
+  const observer = new MutationObserver((mutationsList) => {
+    for (const mutation of mutationsList) {
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === 1 && node.classList.contains(V1_BUTTON_CLASS)) {
+            updateV1ButtonSrc();
+            // If the button is found and updated, we can disconnect the observer
+            // if we only expect one v1Button to appear.
+            // If multiple v1Buttons can appear dynamically, keep observing.
+            // For now, assuming one main v1Button.
+            // observer.disconnect();
+            return;
+          }
+        }
+      }
+    }
+  });
+
+  // Start observing the document body for configured mutations
+  observer.observe(document.body, { childList: true, subtree: true });
 };
 
 const buildV2InitializeConfig = (initDataV1) => {

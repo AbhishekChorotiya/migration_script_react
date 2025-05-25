@@ -20,7 +20,7 @@ export function pazeCheckout(initParams, v1Config) {
     profileId: "Getin",
   };
   const TEST_EMAIL = "returninguser@paze.com";
-  const TEST_SESSION_ID = "testSessionId8678"; //optional
+  const TEST_SESSION_ID = "testSessionId8678";
   const TRANSACTION_DETAILS = {
     transactionCurrencyCode: "USD",
     transactionAmount: "100.00",

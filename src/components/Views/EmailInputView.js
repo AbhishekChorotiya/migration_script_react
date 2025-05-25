@@ -6,14 +6,14 @@ import { validateEmail } from "../../utils/helpers";
 import FloatingLabelInput from "../common/FloatingLabelInput";
 import LockIcon from "../icons/LockIcon";
 import { newUI } from "../../migration";
-import LoadingView from "./LoadingView"; // Import LoadingView
+import LoadingView from "./LoadingView";
 
 const EmailInputView = () => {
   const [email, setEmail] = useState("");
   const [collapsed, setCollapsed] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(true);
-  const [isLoading, setIsLoading] = useState(true); // New state for loading
+  const [isLoading, setIsLoading] = useState(true);
   const UiType = newUI ? "NEW" : "OLD";
   const { getCards } = useVisaCheckout();
 
@@ -32,15 +32,15 @@ const EmailInputView = () => {
     const savedEmail = localStorage.getItem("consumerEmail");
     if (savedEmail && validateEmail(savedEmail)) {
       setEmail(savedEmail);
-      setIsLoading(true); // Set loading to true while fetching cards
+      setIsLoading(true);
       getCards(savedEmail);
     } else {
-      setIsLoading(false); // No saved email, show input
+      setIsLoading(false);
     }
-  }, []); // Run only once on mount
+  }, []);
 
   if (isLoading) {
-    return <LoadingView />; // Show loading view if isLoading is true
+    return <LoadingView />;
   }
 
   if (UiType === "OLD") {

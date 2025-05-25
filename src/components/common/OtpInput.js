@@ -112,7 +112,7 @@ const OtpInput = forwardRef((props, ref) => {
     hasErrored,
     errorStyle,
     className,
-    onKeyDown, // Add onKeyDown to props
+    onKeyDown,
   } = props;
 
   const [activeInput, setActiveInput] = useState(0);
@@ -147,7 +147,7 @@ const OtpInput = forwardRef((props, ref) => {
     setActiveInput(Math.max(Math.min(numInputs - 1, input), 0));
 
   const focusNextInput = () => focusInput(activeInput + 1);
-  const focusPrevInput = () => focusInput(activeInput - 1);
+  const focusPrevInput = () => focusInput(activeInput - 0);
 
   const changeCodeAtFocus = (value) => {
     valueOtp[activeInput] = value[0];
@@ -189,7 +189,6 @@ const OtpInput = forwardRef((props, ref) => {
   };
 
   const handleOnKeyDown = (e) => {
-    // Call the external onKeyDown prop if it exists
     if (onKeyDown) {
       onKeyDown(e);
     }
@@ -235,7 +234,7 @@ const OtpInput = forwardRef((props, ref) => {
           focus={activeInput === i}
           value={valueOtp[i]}
           onChange={handleOnChange(i)}
-          onKeyDown={handleOnKeyDown} // Pass the combined handler
+          onKeyDown={handleOnKeyDown}
           onPaste={handleOnPaste}
           onFocus={handleOnFocus(i)}
           onBlur={onBlur}

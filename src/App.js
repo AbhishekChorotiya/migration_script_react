@@ -6,14 +6,12 @@ import { consumerEmailAtom } from "./utils/atoms";
 const App = () => {
   const setConsumerEmail = useSetAtom(consumerEmailAtom);
 
-  // Initialize consumerEmail from localStorage if it exists
-  // Using useEffect for side effects like localStorage access
   useEffect(() => {
     const storedEmail = localStorage.getItem("consumerEmail");
     if (storedEmail) {
       setConsumerEmail(storedEmail);
     }
-  }, [setConsumerEmail]); // Dependency array includes setConsumerEmail
+  }, [setConsumerEmail]);
 
   return (
     <Provider>

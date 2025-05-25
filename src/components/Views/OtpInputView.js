@@ -28,9 +28,8 @@ const OtpInputView = () => {
       return;
     }
     setIsValidOtp(true);
-    setView(VIEWS.LOADING); // Set view to loading
+    setView(VIEWS.LOADING);
     await getCards(null, otp);
-    // The view will be updated by getCards or a parent component after loading
   };
 
   const handleKeyDown = (event) => {
