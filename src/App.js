@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Checkout from "./components/Checkout";
 import { Provider, useSetAtom } from "jotai";
-import { consumerEmailAtom } from "./utils/atoms";
+import { consumerEmailAtom } from "./utils/atoms"; // No change needed, as TS should resolve .ts
 
 const App = () => {
   const setConsumerEmail = useSetAtom(consumerEmailAtom);

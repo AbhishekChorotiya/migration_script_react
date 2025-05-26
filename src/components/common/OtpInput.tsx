@@ -5,6 +5,10 @@ import React, {
   useMemo,
   useRef,
   useState,
+  CSSProperties,
+  KeyboardEvent,
+  ClipboardEvent,
+  ChangeEvent,
 } from "react";
 
 const BACKSPACE = 8;
@@ -13,12 +17,36 @@ const RIGHT_ARROW = 39;
 const DELETE = 46;
 const SPACEBAR = 32;
 
-const isStyleObject = (obj) => typeof obj === "object";
+const isStyleObject = (obj: any): obj is CSSProperties => typeof obj === "object";
 
-const getClasses = (...classes) =>
+const getClasses = (...classes: (string | CSSProperties | boolean | undefined)[]) =>
   classes.filter((c) => !isStyleObject(c) && c !== false).join(" ");
 
-const SingleOtpInput = (props) => {
+interface SingleOtpInputProps {
+  placeholder?: string;
+  separator?: React.ReactNode;
+  isLastChild: boolean;
+  inputStyle?: CSSProperties | string;
+  focus: boolean;
+  isDisabled?: boolean;
+  hasErrored?: boolean;
+  errorStyle?: CSSProperties | string;
+  focusStyle?: CSSProperties | string;
+  disabledStyle?: CSSProperties | string;
+  shouldAutoFocus?: boolean;
+  isInputNum?: boolean;
+  index: number;
+  value: string;
+  className?: string;
+  isInputSecure?: boolean;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
+  onPaste: (e: ClipboardEvent<HTMLInputElement>) => void;
+  onFocus: (e: ChangeEvent<HTMLInputElement>) => void;
+  onBlur: () => void;
+}
+
+const SingleOtpInput: React.FC<SingleOtpInputProps> = (props) => {
   const {
     placeholder,
     separator,
@@ -38,7 +66,7 @@ const SingleOtpInput = (props) => {
     isInputSecure,
     ...rest
   } = props;
-  const input = useRef(null);
+  const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (input.current && focus && shouldAutoFocus) {
@@ -65,9 +93,8 @@ const SingleOtpInput = (props) => {
       style={{ display: "flex", alignItems: "center" }}
     >
       <input
-        aria-label={`${index === 0 ? "Please enter verification code. " : ""}${
-          isInputNum ? "Digit" : "Character"
-        } ${index + 1}`}
+        aria-label={`${index === 0 ? "Please enter verification code. " : ""}${isInputNum ? "Digit" : "Character"
+          } ${index + 1}`}
         autoComplete="off"
         style={Object.assign(
           { textAlign: "center" },
@@ -94,10 +121,34 @@ const SingleOtpInput = (props) => {
   );
 };
 
-const OtpInput = forwardRef((props, ref) => {
+interface OtpInputProps {
+  numInputs?: number;
+  onChange?: (otp: string) => void;
+  isDisabled?: boolean;
+  shouldAutoFocus?: boolean;
+  value?: string | number;
+  isInputSecure?: boolean;
+  placeholder?: string;
+  isInputNum?: boolean;
+  containerStyle?: CSSProperties | string;
+  inputStyle?: CSSProperties | string;
+  focusStyle?: CSSProperties | string;
+  separator?: React.ReactNode;
+  disabledStyle?: CSSProperties | string;
+  hasErrored?: boolean;
+  errorStyle?: CSSProperties | string;
+  className?: string;
+  onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
+}
+
+interface OtpInputRef {
+  focusInput: (input: number) => void;
+}
+
+const OtpInput = forwardRef<OtpInputRef, OtpInputProps>((props, ref) => {
   const {
     numInputs = 4,
-    onChange = (otp) => console.log(otp),
+    onChange = (otp: string) => console.log(otp),
     isDisabled = false,
     shouldAutoFocus = false,
     value = "",
@@ -115,7 +166,7 @@ const OtpInput = forwardRef((props, ref) => {
     onKeyDown,
   } = props;
 
-  const [activeInput, setActiveInput] = useState(0);
+  const [activeInput, setActiveInput] = useState<number>(0);
 
   const valueOtp = useMemo(
     () => (value ? value.toString().split("") : []),
@@ -137,24 +188,25 @@ const OtpInput = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({ focusInput }));
 
-  const handleOtpChange = (otp) => onChange(otp.join(""));
+  const handleOtpChange = (otp: string[]) => onChange(otp.join(""));
 
-  const isInputValueValid = (value) =>
+  const isInputValueValid = (value: string) =>
     (isInputNum ? !isNaN(parseInt(value, 10)) : typeof value === "string") &&
     value.trim().length === 1;
 
-  const focusInput = (input) =>
+  const focusInput = (input: number) =>
     setActiveInput(Math.max(Math.min(numInputs - 1, input), 0));
 
   const focusNextInput = () => focusInput(activeInput + 1);
-  const focusPrevInput = () => focusInput(activeInput - 0);
+  const focusPrevInput = () => focusInput(activeInput - 1);
 
-  const changeCodeAtFocus = (value) => {
-    valueOtp[activeInput] = value[0];
-    handleOtpChange(valueOtp);
+  const changeCodeAtFocus = (value: string) => {
+    const newValueOtp = [...valueOtp];
+    newValueOtp[activeInput] = value[0];
+    handleOtpChange(newValueOtp);
   };
 
-  const handleOnPaste = (e) => {
+  const handleOnPaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (isDisabled) return;
 
@@ -164,19 +216,21 @@ const OtpInput = forwardRef((props, ref) => {
       .slice(0, numInputs - activeInput)
       .split("");
 
+    const newValueOtp = [...valueOtp];
+
     for (let pos = 0; pos < numInputs; ++pos) {
       if (pos >= activeInput && pastedData.length > 0) {
-        valueOtp[pos] = pastedData.shift();
+        newValueOtp[pos] = pastedData.shift() as string;
         nextActiveInput++;
       }
     }
 
     setActiveInput(nextActiveInput);
     focusInput(nextActiveInput);
-    handleOtpChange(valueOtp);
+    handleOtpChange(newValueOtp);
   };
 
-  const handleOnChange = (idx) => (e) => {
+  const handleOnChange = (idx: number) => (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     if (idx === 0 && value.length === numInputs) {
       handleOtpChange(value.split(""));
@@ -188,7 +242,7 @@ const OtpInput = forwardRef((props, ref) => {
     }
   };
 
-  const handleOnKeyDown = (e) => {
+  const handleOnKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (onKeyDown) {
       onKeyDown(e);
     }
@@ -211,7 +265,7 @@ const OtpInput = forwardRef((props, ref) => {
     }
   };
 
-  const handleOnFocus = (i) => (e) => {
+  const handleOnFocus = (i: number) => (e: ChangeEvent<HTMLInputElement>) => {
     setActiveInput(i);
     e.target.select();
   };
@@ -232,7 +286,7 @@ const OtpInput = forwardRef((props, ref) => {
           placeholder={valuePlaceholder[i] ?? ""}
           index={i}
           focus={activeInput === i}
-          value={valueOtp[i]}
+          value={valueOtp[i] || ""}
           onChange={handleOnChange(i)}
           onKeyDown={handleOnKeyDown}
           onPaste={handleOnPaste}
@@ -243,6 +297,12 @@ const OtpInput = forwardRef((props, ref) => {
           focusStyle={focusStyle}
           isLastChild={i === numInputs - 1}
           isDisabled={isDisabled}
+          hasErrored={hasErrored}
+          errorStyle={errorStyle}
+          disabledStyle={disabledStyle}
+          shouldAutoFocus={shouldAutoFocus}
+          isInputNum={isInputNum}
+          isInputSecure={isInputSecure}
         />
       ))}
     </div>

@@ -1,6 +1,16 @@
 import React from "react";
 
-const Button = ({ onClick = () => {}, title = "Submit", loading = false }) => {
+interface ButtonProps {
+  onClick?: () => void;
+  title?: string;
+  loading?: boolean;
+}
+
+const Button: React.FC<ButtonProps> = ({
+  onClick = () => { },
+  title = "Submit",
+  loading = false,
+}) => {
   return (
     <button
       type="button"
@@ -10,18 +20,18 @@ const Button = ({ onClick = () => {}, title = "Submit", loading = false }) => {
     >
       {!loading && title}
       {loading && (
-        <div class="flex space-x-2 justify-center items-center h-screen">
+        <div className="flex space-x-2 justify-center items-center h-screen">
           <div
             style={{ animationDelay: "0s" }}
-            class="h-3 w-3 bg-white opacity-75 rounded-full animate-bounce"
+            className="h-3 w-3 bg-white opacity-75 rounded-full animate-bounce"
           ></div>
           <div
             style={{ animationDelay: "0.2s" }}
-            class="h-3 w-3 bg-white opacity-75 rounded-full animate-bounce"
+            className="h-3 w-3 bg-white opacity-75 rounded-full animate-bounce"
           ></div>
           <div
             style={{ animationDelay: "0.4s" }}
-            class="h-3 w-3 bg-white opacity-75  rounded-full animate-bounce"
+            className="h-3 w-3 bg-white opacity-75  rounded-full animate-bounce"
           ></div>
         </div>
       )}

@@ -158,26 +158,26 @@ const VisaSrcLoader = ({ cardBrandsArr }) => {
                     }
                 `}
       </style>
-      <div class="bg-white flex flex-col w-full h-full justify-center items-center relative">
-        <div class="mx-auto text-center mb-8">
+      <div className="bg-white flex flex-col w-full h-full justify-center items-center relative">
+        <div className="mx-auto text-center mb-8">
           Click to Pay is looking for your linked cards...
         </div>
         <div className="w-full h-fit relative">
           <div
             style={{ height: "200px", filter: "grayscale(90%)" }}
-            class="relative flex items-center justify-center w-full mb-12"
+            className="relative flex items-center justify-center w-full mb-12"
           >
             <div
               style={{ width: "140px", backgroundSize: "contain" }}
-              class="absolute w-full h-28  card-animation-layer-1"
+              className="absolute w-full h-28  card-animation-layer-1"
             ></div>
             <div
               style={{ width: "140px", backgroundSize: "contain" }}
-              class="absolute w-full h-28  card-animation-layer-2"
+              className="absolute w-full h-28  card-animation-layer-2"
             ></div>
             <div
               style={{ width: "140px", backgroundSize: "contain" }}
-              class="absolute w-full h-28  card-animation-layer-3"
+              className="absolute w-full h-28  card-animation-layer-3"
             ></div>
           </div>
         </div>

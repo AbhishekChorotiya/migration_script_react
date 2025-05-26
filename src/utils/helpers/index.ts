@@ -1,4 +1,9 @@
-const CARD_NETWORKS = [
+interface CardNetwork {
+  name: string;
+  pattern: RegExp;
+}
+
+const CARD_NETWORKS: CardNetwork[] = [
   { name: "Visa", pattern: /^4\d{5}$/ },
   {
     name: "MasterCard",
@@ -21,7 +26,7 @@ const CARD_NETWORKS = [
   { name: "RuPay", pattern: /^(60|65|81|82|508)\d{3}$/ },
 ];
 
-export const getCardNetwork = (panBin) => {
+export const getCardNetwork = (panBin: string | number): string => {
   const bin = panBin.toString();
 
   for (const network of CARD_NETWORKS) {
@@ -32,7 +37,7 @@ export const getCardNetwork = (panBin) => {
   return "Unknown";
 };
 
-export const validateEmail = (email) => {
+export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
