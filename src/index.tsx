@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./migration";
+
 class CustomWebComponent extends HTMLElement {
   constructor() {
     super();
@@ -16,7 +17,7 @@ class CustomWebComponent extends HTMLElement {
     return ["name"];
   }
 
-  attributeChangedCallback() {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     this.render();
   }
 
@@ -30,8 +31,8 @@ class CustomWebComponent extends HTMLElement {
     linkTag.href =
       "https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css";
 
-    this.shadowRoot.appendChild(linkTag);
-    this.shadowRoot.appendChild(mountPoint);
+    this.shadowRoot?.appendChild(linkTag);
+    this.shadowRoot?.appendChild(mountPoint);
     linkTag.onload = () => {
       ReactDOM.createRoot(mountPoint).render(<App />);
     };

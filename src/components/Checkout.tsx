@@ -10,7 +10,7 @@ import { VIEWS } from "../utils/constants/enums";
 import { useAtom } from "jotai";
 import { viewAtom } from "../utils/atoms";
 
-const Checkout = () => {
+const Checkout: React.FC = () => {
   const { init, getCards, close } = useVisaCheckout();
   const [view] = useAtom(viewAtom);
   const handleClose = useCallback(() => {

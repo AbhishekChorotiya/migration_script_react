@@ -7,7 +7,21 @@ import VisaLogo from "./icons/VisaLogo";
 import { newUI } from "../migration";
 import MasterCardLogo from "./icons/MasterCardLogo";
 
-const CardListItem = ({ card, border }) => {
+interface Card {
+  panBin: string;
+  panLastFour: string;
+  srcDigitalCardId: string;
+  digitalCardData: {
+    artUri: string;
+  };
+}
+
+interface CardListItemProps {
+  card: Card;
+  border?: boolean;
+}
+
+const CardListItem: React.FC<CardListItemProps> = ({ card, border }) => {
   const [selectedCard, setSelectedCard] = useAtom(selectedCardAtom);
   const [, setView] = useAtom(viewAtom);
   const cardNetworkName = getCardNetwork(card?.panBin);
@@ -50,19 +64,15 @@ const CardListItem = ({ card, border }) => {
     return (
       <div onClick={handleNewUIClick}>
         <div
-          className={`flex gap-2 cursor-pointer ${
-            border && "border-b border-black"
-          } items-center w-full`}
+          className={`flex gap-2 cursor-pointer ${border && "border-b border-black"
+            } items-center w-full`}
         >
           <span className="w-4 h-4 rounded-full border border-black flex items-center justify-center">
             {card?.srcDigitalCardId === selectedCard?.srcDigitalCardId && (
               <span className="w-2.5 h-2.5 rounded-full bg-black"></span>
             )}
           </span>
-          <div
-            className="flex flex-col"
-            htmlFor={card?.srcDigitalCardId || "card"}
-          >
+          <div className="flex flex-col">
             <div className="w-full-100 px-4">
               <div className="w-full flex gap-4 items-center py-4">
                 <div className="w-14 overflow-hidden rounded h-[36px]">

@@ -3,12 +3,10 @@ import { VIEWS } from "./constants/enums";
 
 export interface SelectedCard {
     srcDigitalCardId: string;
-    // Add other properties of a selected card if known
 }
 
 export interface CardsAtomType {
     profiles: SelectedCard[];
-    // Add other properties of cards if known
 }
 
 export const viewAtom = atom(VIEWS.LOADING);
